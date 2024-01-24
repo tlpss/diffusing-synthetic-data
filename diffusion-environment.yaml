@@ -6,8 +6,12 @@
 name: dsd
 channels:
   - conda-forge
+  - nvidia
+  - pytorch
 dependencies:
-  - python=3.10
+  - pytorch
+  - torchvision
+  - cuda=11.8
   - pip
   - pip:
     - numpy
@@ -15,7 +19,6 @@ dependencies:
     - pre-commit
     - mypy
     - -e dsd/
-    - -e airo-blender/airo-mono/airo-dataset-tools/
-    - -e airo-blender/airo-mono/airo-typing/
-    - -e airo-blender/airo-mono/airo-spatial-algebra/
-    - -e airo-blender/
+    - diffusers[torch]
+    - transformers
+
