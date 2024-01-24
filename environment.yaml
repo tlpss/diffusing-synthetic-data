@@ -3,27 +3,19 @@
 # also make sure to install the local packages with the "-e" prefix
 # to create an environment: conda env create -f environment.yaml
 # to update: conda env update -f environment.yaml
-name: diffusing-synthetic-data
+name: dsd
 channels:
-  - pytorch
   - conda-forge
 dependencies:
-  - python=3.10
-  - pytorch
-  - cudatoolkit=11.3
-  - torchvision
+  - python=3.12
   - pip
   - pip:
     - numpy
-    - matplotlib
-    - scipy
-    - wandb
-    - pytorch-lightning
-    - imageio
-    - albumentations
-    - timm
     - pytest
     - pre-commit
     - mypy
-    - darglint
     - -e dsd/
+    - -e airo-blender/airo-mono/airo-dataset-tools/
+    - -e airo-blender/airo-mono/airo-typing/
+    - -e airo-blender/airo-mono/airo-spatial-algebra/
+    - -e airo-blender/

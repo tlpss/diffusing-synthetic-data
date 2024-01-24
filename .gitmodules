@@ -1,0 +1,3 @@
+[submodule "airo-blender"]
+	path = airo-blender
+	url = https://github.com/airo-ugent/airo-blender.git
