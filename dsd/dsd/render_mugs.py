@@ -7,22 +7,6 @@ from mathutils import Vector
 from dsd import DATA_DIR
 from dsd.renderer import CyclesRendererConfig, render_scene
 
-# delete default cube
-bpy.ops.object.delete(use_global=False)
-
-# add a plane with size 2x2
-bpy.ops.mesh.primitive_plane_add(size=2)
-
-# load the mug mesh
-mug_path = DATA_DIR / "meshes/mugs/gso_room_essential_white/model.obj"
-bpy.ops.import_scene.obj(filepath=str(mug_path), axis_forward="Y", axis_up="Z")
-mug_object = bpy.context.selected_objects[0]
-mug_object.pass_index = 1  # for segmentation hacky rendering
-
-
-# output dir
-output_dir = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
 
 def sample_point_in_capped_ball(radius, min_height):
     x, y = np.random.uniform(-radius, radius, size=2)
@@ -42,7 +26,7 @@ def determine_pose_of_camera_looking_at_point(
 
 
 def create_camera():
-    horizontal_fov = 100
+    horizontal_fov = 70  # cropped zed camera. vertical fov is 70
     horizontal_resolution = 512
     vertical_resolution = 512
 
@@ -63,23 +47,58 @@ def create_camera():
     return camera
 
 
-n_renders = 10
-for i in range(n_renders):
-    # set the camera to a random position
-    camera = create_camera()
-    camera_position = sample_point_in_capped_ball(0.6, 0.2)
-    determine_pose_of_camera_looking_at_point(camera, camera_position, np.array([0, 0, 0]))
-    render_scene(render_config=CyclesRendererConfig(), output_dir=str(output_dir / f"{i:03d}"))
+if __name__ == "__main__":
 
-    # save the pose of the mug in the camera frame
-    mug_pose = np.eye(4)
-    mug_pose[:3, 3] = mug_object.location
-    mug_pose[:3, :3] = mug_object.rotation_euler.to_matrix()
+    # output dir
+    output_dir = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    camera_pose = np.eye(4)
-    camera_pose[:3, 3] = camera.location
-    camera_pose[:3, :3] = camera.rotation_euler.to_matrix()
+    # delete default cube
+    bpy.ops.object.delete(use_global=False)
 
-    mug_in_camera_frame = np.linalg.inv(camera_pose) @ mug_pose
-    print(mug_in_camera_frame)
-    np.save(output_dir / f"{i:03d}" / "mug_pose_in_camera_frame.npy", mug_in_camera_frame)
+    # delete default light
+    bpy.ops.object.select_by_type(type="LIGHT")
+    bpy.ops.object.delete(use_global=False)
+
+    # add a diffuse light
+    bpy.ops.object.light_add(type="SUN", location=(0, 0, 10))
+
+    # add a plane with size 2x2
+    bpy.ops.mesh.primitive_plane_add(size=2)
+
+    mugs_path = DATA_DIR / "meshes/mugs"
+    meshes = list(mugs_path.glob("*.obj"))
+    mug_object = None
+    for mesh in meshes:
+
+        if mug_object is not None:
+            bpy.data.objects.remove(mug_object, do_unlink=True)
+        # load the mug mesh
+        bpy.ops.import_scene.obj(filepath=str(mesh), axis_forward="Y", axis_up="Z")
+        mug_object = bpy.context.selected_objects[0]
+        mug_object.pass_index = 1  # for segmentation hacky rendering
+
+        n_renders = 20
+
+        mesh_output_dir = output_dir / mesh.stem
+        mesh_output_dir.mkdir(parents=True, exist_ok=True)
+
+        for i in range(n_renders):
+            # set the camera to a random position
+            camera = create_camera()
+            camera_position = sample_point_in_capped_ball(0.6, 0.2)
+            determine_pose_of_camera_looking_at_point(camera, camera_position, np.array([0, 0, 0]))
+            render_scene(
+                render_config=CyclesRendererConfig(num_samples=8), output_dir=str(mesh_output_dir / f"{i:03d}")
+            )
+
+            # save the pose of the mug in the camera frame
+            mug_pose = np.eye(4)
+            mug_pose[:3, 3] = mug_object.location
+            mug_pose[:3, :3] = mug_object.rotation_euler.to_matrix()
+
+            camera_pose = np.eye(4)
+            camera_pose[:3, 3] = camera.location
+            camera_pose[:3, :3] = camera.rotation_euler.to_matrix()
+
+            mug_in_camera_frame = np.linalg.inv(camera_pose) @ mug_pose
+            np.save(mesh_output_dir / f"{i:03d}" / "mug_pose_in_camera_frame.npy", mug_in_camera_frame)

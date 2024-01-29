@@ -12,6 +12,7 @@ class RendererConfig:
     render_rgb: bool = True
     render_depth: bool = True
     render_segmentation: bool = True
+    render_normal: bool = True
 
 
 @dataclasses.dataclass
@@ -20,7 +21,12 @@ class CyclesRendererConfig(RendererConfig):
     denoise: bool = True
 
 
-def render_scene(render_config: RendererConfig, output_dir: str):
+@dataclasses.dataclass
+class EeveeRendererConfig(RendererConfig):
+    pass
+
+
+def render_scene(render_config: RendererConfig, output_dir: str):  # noqa: C901
     scene = bpy.context.scene
 
     if isinstance(render_config, CyclesRendererConfig):
@@ -28,6 +34,9 @@ def render_scene(render_config: RendererConfig, output_dir: str):
         scene.cycles.use_denoising = render_config.denoise
         scene.cycles.samples = render_config.num_samples
         scene.cycles.device = render_config.device
+
+    elif isinstance(render_config, EeveeRendererConfig):
+        scene.render.engine = "BLENDER_EEVEE"
     else:
         raise NotImplementedError(f"Renderer config {render_config} not implemented")
 
@@ -38,6 +47,14 @@ def render_scene(render_config: RendererConfig, output_dir: str):
     os.makedirs(output_dir, exist_ok=True)
 
     scene.use_nodes = True
+
+    # remove any existing NodeOutputFile nodes from the scene
+    # to enable calling this render method multiple times in the same blender session
+    if scene.node_tree.nodes and len(scene.node_tree.nodes) > 0:
+        for node in scene.node_tree.nodes:
+            if node.name == "Render Layers":
+                continue
+            scene.node_tree.nodes.remove(node)
 
     # Add a file output node to the scene
     tree = scene.node_tree
@@ -101,6 +118,18 @@ def render_scene(render_config: RendererConfig, output_dir: str):
         links.new(normalization_node.outputs[0], node.inputs[slot_depth_image.path])
         links.new(render_layers_node.outputs["Depth"], node.inputs[slot_depth_map.path])
 
+    if render_config.render_normal:
+        normal_image_name = "normal_image"
+        scene.view_layers["ViewLayer"].use_pass_normal = True
+
+        node.file_slots.new(normal_image_name)
+        slot_normal_image = node.file_slots[normal_image_name]
+        slot_normal_image.format.color_mode = "RGB"
+        slot_normal_image.use_node_format = False
+        slot_normal_image.save_as_render = False
+
+        render_layers_node = nodes["Render Layers"]
+        links.new(render_layers_node.outputs["Normal"], node.inputs[slot_normal_image.path])
     bpy.ops.render.render(animation=False)
 
     # # Prevent the 0001 suffix from being added to the file name
