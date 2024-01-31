@@ -1,6 +1,6 @@
 import dataclasses
 import os
-import pathlib 
+import pathlib
 
 import bpy
 
@@ -74,7 +74,6 @@ def render_scene(render_config: RendererConfig, output_dir: str):  # noqa: C901
         render_layers_node = nodes["Render Layers"]
         links.new(render_layers_node.outputs["Image"], node.inputs["Image"])
 
-
     if render_config.render_segmentation:
         scene.view_layers["ViewLayer"].use_pass_object_index = True
         segmentation_name = "segmentation"
@@ -85,7 +84,6 @@ def render_scene(render_config: RendererConfig, output_dir: str):  # noqa: C901
         slot_segmentation.format.color_mode = "BW"
         slot_segmentation.use_node_format = False
         slot_segmentation.save_as_render = False
-
 
         # Other method, use the mask ID node
         mask_id_node = nodes.new("CompositorNodeIDMask")
@@ -142,7 +140,7 @@ def render_scene(render_config: RendererConfig, output_dir: str):  # noqa: C901
     # # Prevent the 0001 suffix from being added to the file name
     # # Annoying fix, because Blender adds a 0001 suffix to the file name which can't be disabled
     for file in os.listdir(output_dir):
-        if pathlib.Path(file).suffix in [".exr",".png",".jpg",".tiff",".tif"]:
+        if pathlib.Path(file).suffix in [".exr", ".png", ".jpg", ".tiff", ".tif"]:
             # remove the 001 suffix before the extension
             filename = os.path.join(output_dir, file)
             filename_new = filename.split(".")[0].removesuffix("0001") + "." + filename.split(".")[1]
