@@ -1,11 +1,12 @@
 import datetime
+import random
 
 import bpy
 import numpy as np
 from mathutils import Vector
 
 from dsd import DATA_DIR
-from dsd.renderer import CyclesRendererConfig, render_scene
+from dsd.rendering.renderer import CyclesRendererConfig, render_scene
 
 
 def sample_point_in_capped_ball(radius, min_height):
@@ -43,11 +44,18 @@ def create_camera():
     scene = bpy.context.scene
     scene.render.resolution_x = image_width
     scene.render.resolution_y = image_height
+    # set depth clipping
+    camera.data.clip_end = 2.0
 
     return camera
 
 
 if __name__ == "__main__":
+
+    # fix the random seeds to make reproducible renders
+    np.random.seed(2024)
+    random.seed(2024)
+    
 
     # output dir
     output_dir = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -77,7 +85,7 @@ if __name__ == "__main__":
         mug_object = bpy.context.selected_objects[0]
         mug_object.pass_index = 1  # for segmentation hacky rendering
 
-        n_renders = 20
+        n_renders = 1
 
         mesh_output_dir = output_dir / mesh.stem
         mesh_output_dir.mkdir(parents=True, exist_ok=True)
