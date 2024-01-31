@@ -7,3 +7,4 @@
 import pathlib
 
 DATA_DIR = pathlib.Path(__file__).parents[2] / "data"
+MODEL_CACHE = pathlib.Path(__file__).parents[2] / "model_cache"
