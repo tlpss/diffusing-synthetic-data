@@ -105,6 +105,9 @@ class DiffusionRenderer:
     def __call__(self, prompt: str, input_images: DiffusionRenderInputImages, **kwargs) -> list[Image.Image]:
         raise NotImplementedError
 
+    def get_logging_name(self):
+        return self.__class__.__name__
+
 
 class SDInpaintingRenderer(DiffusionRenderer):
     pass
@@ -115,26 +118,52 @@ class SDFromDepthRenderer(DiffusionRenderer):
 
 
 class ControlNetRenderer(DiffusionRenderer):
-    DEFAULT_CONTROLNET_GUIDANCE_SCALE = 1.0
+    DEFAULT_CONTROLNET_CONDITIONING_SCALE = 1.0
     DEFAULT_STRENGTH = 1.0
 
     def __init__(
         self,
         num_images_per_prompt: int = 4,
         num_inference_steps: int = 50,
-        controlnet_guidance_scale: float = DEFAULT_CONTROLNET_GUIDANCE_SCALE,
+        controlnet_conditioning_scale: float = DEFAULT_CONTROLNET_CONDITIONING_SCALE,
         strength: float = DEFAULT_STRENGTH,
     ):
         super().__init__(num_images_per_prompt, num_inference_steps)
-        self.controlnet_guidance_scale = controlnet_guidance_scale
+        self.controlnet_conditioning_scale = controlnet_conditioning_scale
         self.strength = strength
+        self.pipe: StableDiffusionControlNetImg2ImgPipeline = None
+
+    def get_logging_name(self):
+        return f"{self.__class__.__name__}_cgs={self.controlnet_conditioning_scale}"
+
+    def __call__(self, prompt, input_images, **kwargs):
+        # TODO: better to resize in the pipeline?
+        assert input_images.rgb_image.shape[:2] == self.input_resolution
+        output_dict = self.pipe(
+            prompt=prompt,
+            image=input_images.get_rgb_image_torch(),
+            control_image=self.get_control_image(input_images),
+            num_images_per_prompt=self.num_images_per_prompt,
+            controlnet_conditioning_scale=self.controlnet_conditioning_scale,
+            strength=self.strength,
+            num_inference_steps=self.num_inference_steps,
+            generator=self.generator,
+        )
+        images = output_dict.images
+        return images
 
     def get_control_image(self, input_images: DiffusionRenderInputImages):
         raise NotImplementedError
 
 
 class SDXLControlNetFromDepthRenderer(ControlNetRenderer):
-    pass
+    """
+
+    SD-XL + Controlnet, depth conditioned.
+
+
+
+    """
 
 
 class ControlNetFromDepthRenderer(ControlNetRenderer):
@@ -147,12 +176,12 @@ class ControlNetFromDepthRenderer(ControlNetRenderer):
         self,
         num_images_per_prompt: int = 4,
         num_inference_steps: int = 50,
-        controlnet_guidance_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_GUIDANCE_SCALE,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
         strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
     ):
 
         # TODO: configure which controlnet and corresponding diffusion model to use?
-        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_guidance_scale, strength)
+        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_conditioning_scale, strength)
         self.controlnet = ControlNetModel.from_pretrained(
             "lllyasviel/sd-controlnet-depth", torch_dtype=torch.float16
         ).to("cuda")
@@ -160,22 +189,6 @@ class ControlNetFromDepthRenderer(ControlNetRenderer):
         self.pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5", controlnet=self.controlnet, torch_dtype=torch.float16
         ).to("cuda")
-
-    def __call__(self, prompt, input_images, **kwargs):
-        # TODO: better to resize in the pipeline?
-        assert input_images.rgb_image.shape[:2] == self.input_resolution
-        output_dict = self.pipe(
-            prompt=prompt,
-            image=input_images.get_rgb_image_torch(),
-            control_image=self.get_control_image(input_images),
-            num_images_per_prompt=self.num_images_per_prompt,
-            controlnet_guidance_scale=self.controlnet_guidance_scale,
-            strength=self.strength,
-            num_inference_steps=self.num_inference_steps,
-            generator=self.generator,
-        )
-        images = output_dict.images
-        return images
 
     def get_control_image(self, input_images: DiffusionRenderInputImages):
         return input_images.get_inverted_depth_image_torch()
@@ -191,10 +204,10 @@ class ControlnetfromHEDRenderer(ControlNetRenderer):
         self,
         num_images_per_prompt: int = 4,
         num_inference_steps: int = 50,
-        controlnet_guidance_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_GUIDANCE_SCALE,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
         strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
     ):
-        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_guidance_scale, strength)
+        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_conditioning_scale, strength)
         self.controlnet = ControlNetModel.from_pretrained(
             "lllyasviel/control_v11p_sd15_softedge", torch_dtype=torch.float16
         ).to("cuda")
@@ -204,22 +217,6 @@ class ControlnetfromHEDRenderer(ControlNetRenderer):
         ).to("cuda")
         self.processor = PidiNetDetector.from_pretrained("lllyasviel/Annotators")
         self.use_rgb_for_control = True
-
-    def __call__(self, prompt, input_images, **kwargs):
-
-        output_dict = self.pipe(
-            prompt=prompt,
-            image=input_images.rgb_image,
-            control_image=self.get_control_image(input_images),
-            num_images_per_prompt=self.num_images_per_prompt,
-            controlnet_condition_scale=self.controlnet_guidance_scale,
-            strength=self.strength,
-            num_inference_steps=self.num_inference_steps,
-            generator=self.generator,
-            **kwargs,
-        )
-        images = output_dict.images
-        return images
 
     def get_control_image(self, input_images: DiffusionRenderInputImages):
         control_image = input_images.rgb_image if self.use_rgb_for_control else input_images.get_inverted_depth_image()
@@ -238,10 +235,10 @@ class ControlNetFromCannyRenderer(ControlNetRenderer):
         self,
         num_images_per_prompt: int = 4,
         num_inference_steps: int = 50,
-        controlnet_guidance_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_GUIDANCE_SCALE,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
         strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
     ):
-        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_guidance_scale, strength)
+        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_conditioning_scale, strength)
         self.controlnet = ControlNetModel.from_pretrained(
             "lllyasviel/sd-controlnet-canny", torch_dtype=torch.float16
         ).to("cuda")
@@ -251,21 +248,6 @@ class ControlNetFromCannyRenderer(ControlNetRenderer):
         ).to("cuda")
         self.processor = CannyDetector()
         self.use_rgb_for_control = True
-
-    def __call__(self, prompt, input_images, **kwargs):
-        output_dict = self.pipe(
-            prompt=prompt,
-            image=input_images.rgb_image,
-            control_image=self.get_control_image(input_images),
-            num_images_per_prompt=self.num_images_per_prompt,
-            controlnet_condition_scale=self.controlnet_guidance_scale,
-            num_inference_steps=self.num_inference_steps,
-            strength=self.strength,
-            generator=self.generator,
-            **kwargs,
-        )
-        images = output_dict.images
-        return images
 
     def get_control_image(self, input_images: DiffusionRenderInputImages):
         control_image = input_images.rgb_image if self.use_rgb_for_control else input_images.get_inverted_depth_image()
@@ -284,10 +266,10 @@ class ControlNetFromNormalsRenderer(ControlNetRenderer):
         self,
         num_images_per_prompt: int = 4,
         num_inference_steps: int = 50,
-        controlnet_guidance_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_GUIDANCE_SCALE,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
         strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
     ):
-        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_guidance_scale, strength)
+        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_conditioning_scale, strength)
 
         self.controlnet = ControlNetModel.from_pretrained(
             "fusing/stable-diffusion-v1-5-controlnet-normal", torch_dtype=torch.float16
@@ -296,21 +278,6 @@ class ControlNetFromNormalsRenderer(ControlNetRenderer):
         self.pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5", controlnet=self.controlnet, torch_dtype=torch.float16
         ).to("cuda")
-
-    def __call__(self, prompt, input_images, **kwargs):
-        output_dict = self.pipe(
-            prompt=prompt,
-            image=input_images.rgb_image,
-            control_image=self.get_control_image(input_images),
-            num_images_per_prompt=self.num_images_per_prompt,
-            controlnet_condition_scale=self.controlnet_guidance_scale,
-            num_inference_steps=self.num_inference_steps,
-            strength=self.strength,
-            generator=self.generator,
-            **kwargs,
-        )
-        images = output_dict.images
-        return images
 
     def get_control_image(self, input_images: DiffusionRenderInputImages):
         control_image = input_images.get_normal_map_torch()
