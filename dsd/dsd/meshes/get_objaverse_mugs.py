@@ -1,4 +1,5 @@
-import os 
+import os
+
 import objaverse
 
 MUG_UIDS = [
@@ -7,7 +8,6 @@ MUG_UIDS = [
     "ef3144db2ffa465182f057060e760cf5",
     "e3cae64e7d3048049b4ea3c9dcb88e2f",
     "b7c302e255f24f8e9bba8c4196396f70",
-
 ]
 
 
@@ -23,4 +23,5 @@ def download_mugs(directory: str):
 
 if __name__ == "__main__":
     from dsd import DATA_DIR
+
     download_mugs(DATA_DIR / "meshes" / "mugs")

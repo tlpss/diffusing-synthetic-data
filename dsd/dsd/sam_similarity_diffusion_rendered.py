@@ -8,6 +8,7 @@ from urllib.request import urlretrieve
 import numpy as np
 from PIL import Image
 from segment_anything import SamPredictor, sam_model_registry
+from tqdm import tqdm
 
 from dsd import MODEL_CACHE
 
@@ -118,7 +119,7 @@ def calculate_similarities_for_renders(render_path: pathlib.Path, sam_predictor:
     render_dirs = [p.parents[1] for p in render_paths]
 
     similarity_dict = {}
-    for render_dir in render_dirs:
+    for render_dir in tqdm(render_dirs):
         render_dir_simialrity_dict = calculate_similarities_for_render_dir(render_dir, sam_predictor)
         similarity_dict.update(render_dir_simialrity_dict)
     return similarity_dict
