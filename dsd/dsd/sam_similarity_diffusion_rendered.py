@@ -74,9 +74,12 @@ def calculate_similarities_for_render_dir(render_dir: pathlib.Path, sam_predicto
     iou_scores_dict = {}
     # get subdirs
     subdirs = [d for d in render_dir.iterdir() if d.is_dir()]
-    subdirs = [d for d in subdirs if d.name != "original"]
+    # subdirs = [d for d in subdirs if d.name != "original"]
     for i, subdir in enumerate(subdirs):
         images = list(subdir.glob("*.png"))
+        if subdir.name == "original":
+            images = [d for d in images if "rgb" in d.name]
+
         for image_path in images:
             image = np.array(Image.open(image_path))
             # check if image is all black -> NSFW filter -> skip
