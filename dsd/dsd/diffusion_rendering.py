@@ -19,7 +19,7 @@ from diffusers import (
     StableDiffusionControlNetImg2ImgPipeline,
     StableDiffusionDepth2ImgPipeline,
     StableDiffusionInpaintPipeline,
-    StableDiffusionXLControlNetPipeline,
+    StableDiffusionXLControlNetImg2ImgPipeline,
 )
 from PIL import Image
 
@@ -115,6 +115,10 @@ def get_canny_edges_from_image(image: Image.Image, low_threshold=20, high_thresh
     return image
 
 
+# SD2 benefits from negative prompts: https://stable-diffusion-art.com/how-to-use-negative-prompts/#Universal_negative_prompt
+SDV2_NEGATIVE_PROMPT = "ugly, tiling, out of frame, disfigured, deformed, body out of frame, bad anatomy, watermark,signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face"
+
+
 class DiffusionRenderer:
     def __init__(self, num_images_per_prompt=4, num_inference_steps=50):
         self.generator = torch.manual_seed(1)
@@ -150,6 +154,7 @@ class SD2InpaintingRenderer(DiffusionRenderer):
 
         output_dict = self.pipe(
             prompt=prompt,
+            negative_prompt=SDV2_NEGATIVE_PROMPT,
             image=rgb_image,
             mask_image=mask,
             num_images_per_prompt=self.num_images_per_prompt,
@@ -191,7 +196,7 @@ class SD2FromDepthRenderer(DiffusionRenderer):
         output_dict = self.pipe(
             prompt=prompt,
             image=rgb_image,
-            negative_prompt="bad, deformed, ugly, bad anotomy, low resolution",
+            negative_prompt=SDV2_NEGATIVE_PROMPT,
             num_images_per_prompt=self.num_images_per_prompt,
             num_inference_steps=self.num_inference_steps,
             strength=self.strength,
@@ -202,7 +207,7 @@ class SD2FromDepthRenderer(DiffusionRenderer):
 
 
 class ControlNetRenderer(DiffusionRenderer):
-    DEFAULT_CONTROLNET_CONDITIONING_SCALE = 1.0
+    DEFAULT_CONTROLNET_CONDITIONING_SCALE = 1.5
     DEFAULT_STRENGTH = 1.0
 
     def __init__(
@@ -269,7 +274,7 @@ class SDXLControlNetFromDepthRenderer(ControlNetRenderer):
             torch_dtype=torch.float16,
         ).to("cuda")
         self.vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16).to("cuda")
-        self.pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
+        self.pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
             "stabilityai/stable-diffusion-xl-base-1.0",
             controlnet=self.controlnet,
             vae=self.vae,
@@ -316,7 +321,7 @@ class SDXLControlNetFromCannyRenderer(ControlNetRenderer):
             torch_dtype=torch.float16,
         ).to("cuda")
         self.vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16).to("cuda")
-        self.pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
+        self.pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
             "stabilityai/stable-diffusion-xl-base-1.0",
             controlnet=self.controlnet,
             vae=self.vae,
@@ -327,10 +332,21 @@ class SDXLControlNetFromCannyRenderer(ControlNetRenderer):
         self.pipe.enable_model_cpu_offload()
 
     def get_control_image(self, input_images: DiffusionRenderInputImages):
-        depth_image = input_images.get_inverted_depth_image_torch()
-        # resize the images to 1024x1024
-        depth_image = torch.nn.functional.interpolate(depth_image, size=(1024, 1024), mode="bicubic")
-        return depth_image
+        rgb_image = Image.fromarray((input_images.rgb_image * 255).astype(np.uint8))
+        rgb_image = rgb_image.resize((1024, 1024))
+        control_image = get_canny_edges_from_image(rgb_image)
+        # duplicate 3 channels
+        control_image = np.array(control_image)
+        control_image = np.concatenate(
+            [control_image[..., None], control_image[..., None], control_image[..., None]], axis=-1
+        )
+        control_image = Image.fromarray(control_image)
+        return control_image
+
+    def preprocess_rgb_image(self, input_images: DiffusionRenderInputImages) -> torch.Tensor:
+        rgb_image = Image.fromarray((input_images.rgb_image * 255).astype(np.uint8))
+        rgb_image = rgb_image.resize((1024, 1024))
+        return rgb_image
 
     def __call__(self, prompt, input_images, **kwargs):
 
