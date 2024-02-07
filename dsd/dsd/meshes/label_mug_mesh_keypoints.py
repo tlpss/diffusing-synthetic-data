@@ -8,7 +8,8 @@ def get_mug_keypoints(vertices: np.ndarray):
     bottom_vertices = vertices[vertices[:, 2] < margin]
     bottom_center = bottom_vertices.mean(axis=0)
 
-    bottom_kp = np.concatenate([bottom_center, np.array([0.0])])
+    bottom_kp = bottom_center
+    bottom_kp[2] = 0
 
     # most outwards point is handle keypoint
     vertices_radius = np.linalg.norm(vertices[..., :2], axis=1)

@@ -1,4 +1,5 @@
 import datetime
+import json
 import random
 
 import bpy
@@ -7,6 +8,7 @@ from airo_blender.materials import add_material
 from mathutils import Vector
 
 from dsd import DATA_DIR
+from dsd.rendering.annotator import annotate_keypoints
 from dsd.rendering.renderer import CyclesRendererConfig, render_scene
 
 
@@ -138,3 +140,22 @@ if __name__ == "__main__":
 
             mug_in_camera_frame = np.linalg.inv(camera_pose) @ mug_pose
             np.save(mesh_output_dir / f"{i:03d}" / "mug_pose_in_camera_frame.npy", mug_in_camera_frame)
+
+            # get the 2D keypoint
+            keypoints_3D_dict = json.load(open(str(mesh).split(".")[0] + "_keypoints.json", "r"))
+            keypoints_2d = annotate_keypoints(keypoints_3D_dict, camera)
+
+            # plot them on the image
+            # from PIL import Image, ImageDraw
+            # img = Image.open(mesh_output_dir / f"{i:03d}" / "rgb.png")
+            # draw = ImageDraw.Draw(img)
+            # for kp_name, (u, v, visibility) in keypoints_2d.items():
+            #     if visibility < 1.5:
+            #         draw.ellipse((u - 5, v - 5, u + 5, v + 5), fill=(100, 0, 0))
+            #     else:
+            #         draw.ellipse((u - 5, v - 5, u + 5, v + 5), fill=(255, 0, 0))
+            # img.save(mesh_output_dir / f"{i:03d}" / "annotated_rgb.png")
+
+            # save as json
+            with open(mesh_output_dir / f"{i:03d}" / "keypoints.json", "w") as f:
+                json.dump(keypoints_2d, f)
