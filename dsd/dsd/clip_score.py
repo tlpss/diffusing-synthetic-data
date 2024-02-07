@@ -19,7 +19,7 @@ class CLIPScoreCalculator:
     """
 
     def __init__(self, clip_model: str = "openai/clip-vit-base-patch16"):
-        self._metric = CLIPScore(clip_model)
+        self._metric = CLIPScore(clip_model).to("cuda")
 
     @torch.no_grad()
     def calculate_scores_for_render_dir(self, render_dir: pathlib.Path):
@@ -37,7 +37,7 @@ class CLIPScoreCalculator:
                     print(f"skipping {image_path} because it is all black")
                     continue
 
-                image = torch.tensor(image).permute(2, 0, 1)
+                image = torch.tensor(image).permute(2, 0, 1).to("cuda")
                 caption = str(image_path.stem).split("/")[-1].split("_")[0]
                 score = self._metric([image], [caption])
                 # print(f"score for {image_path} with caption {caption} is  {score.item()}")
