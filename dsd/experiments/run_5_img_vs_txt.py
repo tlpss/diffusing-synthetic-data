@@ -1,23 +1,16 @@
 import random
 
 from dsd import DATA_DIR
-from dsd.diffusion_rendering import SD15RealisticCheckpointControlNetFromDepthRenderer
+from dsd.diffusion_rendering import ControlNetFromDepthRenderer, ControlNetTXTFromDepthRenderer
 from dsd.generate_diffusion_renders import generate_diffusion_renders
 
-source_directory = DATA_DIR / "renders" / "mugs" / "10"
-target_directory = DATA_DIR / "diffusion_renders" / "mugs" / "run_3"
+source_directory = DATA_DIR / "renders" / "mugs" / "20"
+target_directory = DATA_DIR / "diffusion_renders" / "mugs" / "run_5"
 
 num_images_per_prompt = 4
 diffusion_renderers = [
-    # (ControlnetfromHEDRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (ControlNetFromNormalsRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (ControlNetFromCannyRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (ControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SDXLControlNetFromCannyRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SDXLControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SD2FromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SD2InpaintingRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    (SD15RealisticCheckpointControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
+    (ControlNetTXTFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
+    (ControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
 ]
 prompts = [
     "a striped mug on a wooden table",
@@ -51,4 +44,6 @@ print(prompts)
 # target_directory.mkdir(parents=True, exist_ok=True)
 
 
-generate_diffusion_renders(source_directory, target_directory, diffusion_renderers, prompts)
+generate_diffusion_renders(
+    source_directory, target_directory, diffusion_renderers, prompts, num_prompts_per_scene=None
+)

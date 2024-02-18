@@ -4,19 +4,11 @@ from dsd import DATA_DIR
 from dsd.diffusion_rendering import SD15RealisticCheckpointControlNetFromDepthRenderer
 from dsd.generate_diffusion_renders import generate_diffusion_renders
 
-source_directory = DATA_DIR / "renders" / "mugs" / "10"
-target_directory = DATA_DIR / "diffusion_renders" / "mugs" / "run_3"
+source_directory = DATA_DIR / "renders" / "mugs" / "100"
+target_directory = DATA_DIR / "diffusion_renders" / "mugs" / "run_6"
 
 num_images_per_prompt = 4
 diffusion_renderers = [
-    # (ControlnetfromHEDRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (ControlNetFromNormalsRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (ControlNetFromCannyRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (ControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SDXLControlNetFromCannyRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SDXLControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SD2FromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
-    # (SD2InpaintingRenderer, {"num_images_per_prompt": num_images_per_prompt}),
     (SD15RealisticCheckpointControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
 ]
 prompts = [
@@ -29,12 +21,13 @@ prompts = [
     "a mug with a picture of a dog on a table",
     "an orange mug on an outdoor table",
     "a coffee mug on a kitchen counter",
-    "a mug",
+    "a glass mug",
 ]
 
+mug_descriptions = []
 
 LIGHTINGS = ["", "ambient light", "studio lighting", "natural light"]
-STYLE_MEDIUM = ["", "Photorealistic", "Photography, 4K"]
+STYLE_MEDIUM = ["", "RAW", "Photorealistic", "Photography, 4K"]
 
 random.seed(2024)
 prompts = [prompt + ", " + random.choice(LIGHTINGS) + ", " + random.choice(STYLE_MEDIUM) for prompt in prompts]
@@ -51,4 +44,6 @@ print(prompts)
 # target_directory.mkdir(parents=True, exist_ok=True)
 
 
-generate_diffusion_renders(source_directory, target_directory, diffusion_renderers, prompts)
+generate_diffusion_renders(
+    source_directory, target_directory, diffusion_renderers, prompts, num_prompts_per_scene=None
+)
