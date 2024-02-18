@@ -1,10 +1,11 @@
 "script to create coco annotations for diffusion rendered images"
-
 import json
 import pathlib
 from collections import defaultdict
 
+import cv2
 import numpy as np
+import tqdm
 from airo_dataset_tools.data_parsers.coco import (
     CocoImage,
     CocoKeypointAnnotation,
@@ -24,7 +25,7 @@ def get_images_per_renderer(render_path: pathlib.Path):
 
     for path in image_paths:
         # check if image is all black -> NSFW filter -> skip
-        image = np.array(Image.open(path))
+        image = cv2.imread(str(path))
         if np.max(image) < 1e-4:
             continue
 
@@ -79,10 +80,17 @@ def create_coco_dataset(images, coco_category):
     return coco_dataset
 
 
+def copy_img(src, dst):
+    cv2_image = cv2.imread(str(src))
+    cv2.imwrite(str(dst), cv2_image)
+
+
 def copy_images_and_make_paths_relative(
     coco_dataset: CocoKeypointsDataset, render_path: pathlib.Path, coco_dataset_dir: pathlib.Path
 ):
     image_dataset_dir = coco_dataset_dir / "images"
+
+    copy_task_list = []
     for image in coco_dataset.images:
         abs_path = image.file_name
         abs_path = pathlib.Path(abs_path)
@@ -90,15 +98,23 @@ def copy_images_and_make_paths_relative(
 
         new_path = image_dataset_dir / relative_path
         new_path.parent.mkdir(parents=True, exist_ok=True)
-        pil_image = Image.open(abs_path)
-        pil_image.save(new_path)
         image.file_name = str(new_path.relative_to(coco_dataset_dir))
+        copy_task_list.append((abs_path, new_path))
+
+    # pool = mp.Pool(mp.cpu_count() - 4)
+    # pool.starmap(copy_img, copy_task_list)
+    # pool.close()
+    # pool.join()
+    for src, dst in tqdm.tqdm(copy_task_list):
+        print(src, dst)
+        copy_img(src, dst)
 
     return coco_dataset
 
 
 def generate_coco_datasets(render_path: pathlib.Path, coco_category: CocoKeypointCategory):
     renderer_to_images_dict = get_images_per_renderer(render_path)
+    print("gathered index")
     for renderer, images in renderer_to_images_dict.items():
         coco_dataset = create_coco_dataset(images, coco_category)
         coco_dataset_dir = (
@@ -110,6 +126,7 @@ def generate_coco_datasets(render_path: pathlib.Path, coco_category: CocoKeypoin
         )
         coco_dataset_dir.mkdir(parents=True, exist_ok=True)
 
+        print("copying images")
         coco_dataset = copy_images_and_make_paths_relative(coco_dataset, render_path, coco_dataset_dir)
 
         with open(coco_dataset_dir / "annotations.json", "w") as f:
@@ -119,7 +136,7 @@ def generate_coco_datasets(render_path: pathlib.Path, coco_category: CocoKeypoin
 if __name__ == "__main__":
     from dsd import DATA_DIR
 
-    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_3"
+    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_9"
     category = CocoKeypointCategory(
         id=0, name="mug", supercategory="mug", keypoints=["bottom", "handle", "top"], skeleton=[[0, 1], [1, 2]]
     )

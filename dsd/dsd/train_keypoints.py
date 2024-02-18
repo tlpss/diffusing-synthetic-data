@@ -6,7 +6,7 @@ from dsd import DATA_DIR
 DEFAULT_DICT = {
     "keypoint_channel_configuration": None,
     "accelerator": "gpu",
-    "ap_epoch_freq": 5,
+    "ap_epoch_freq": 1,
     # "check_val_every_n_epoch": 10,
     "backbone_type": "MaxVitUnet",
     "devices": 1,
@@ -14,13 +14,13 @@ DEFAULT_DICT = {
     "json_dataset_path": "",
     "json_test_dataset_path": "",
     # "json_validation_dataset_path": "",
-    "max_epochs": 25,
+    "max_epochs": 10,
     "maximal_gt_keypoint_pixel_distances": "'8 16 32'",  # quotes are need to avoid splitting in list
-    "minimal_keypoint_extraction_pixel_distance": 2,
+    "minimal_keypoint_extraction_pixel_distance": 6,
     "precision": 16,
     "seed": 2024,
     # determined based on hparam sweep
-    "heatmap_sigma": 3,
+    "heatmap_sigma": 5,
     "learning_rate": 0.0003,
     "batch_size": 8,
     ###
@@ -68,10 +68,39 @@ def train_on_real(real_train_path, real_val_path, default_arg_dict=MUG_DICT):
     subprocess.run(command, shell=True)
 
 
+def train_on_kpam():
+    arg_dict = MUG_DICT.copy()
+    arg_dict[
+        "json_dataset_path"
+    ] = "/home/tlips/Documents/manip_dataset/mug_kpam_keypoints_train_resized_512x512/mug_kpam_keypoints_train.json"
+    arg_dict[
+        "json_validation_dataset_path"
+    ] = "/home/tlips/Documents/manip_dataset/mug_kpam_keypoints_val_resized_512x512/mug_kpam_keypoints_val.json"
+    arg_dict["wandb_name"] = "kpam-mugs"
+    arg_dict["max_epochs"] = 4
+
+
+def train_on_kpam_dsd():
+    arg_dict = MUG_DICT.copy()
+    arg_dict[
+        "json_dataset_path"
+    ] = "/home/tlips/Documents/manip_dataset/mug_dsd_keypoints_train_resized_512x512/mug_dsd_keypoints_train.json"
+    arg_dict[
+        "json_validation_dataset_path"
+    ] = "/home/tlips/Documents/manip_dataset/mug_dsd_keypoints_val_resized_512x512/mug_dsd_keypoints_val.json"
+    arg_dict["wandb_name"] = "kpam-dsd-mugs"
+    arg_dict["max_epochs"] = 4
+    # arg_dict["val_check_interval"] = 0.25
+
+    command = _create_command(arg_dict)
+    subprocess.run(command, shell=True)
+
+
 if __name__ == "__main__":
-    train_on_real(
-        DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_train.json",
-        DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_val.json",
-    )
-    # train_on_experiment(DATA_DIR / "diffusion_renders" / "coco"  / "mugs" / "run_3")
-    # train_on_synthetic_dataset(DATA_DIR / "diffusion_renders" / "coco"  / "mugs" / "run_3" / "ControlNetFromDepthRenderer_ccs=1.5", MUG_DICT.copy())
+    # train_on_real(
+    #     DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_train.json",
+    #     DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_val.json",
+    # )
+    # train_on_experiment(DATA_DIR / "diffusion_renders" / "coco"  / "mugs" / "run_9")
+    # train_on_synthetic_dataset(DATA_DIR / "diffusion_renders" / "coco"  / "mugs" / "run_3" / "SD15RealisticCheckpointControlNetFromDepthRenderer_ccs=1.5", MUG_DICT.copy())
+    train_on_kpam_dsd()

@@ -17,6 +17,7 @@ from diffusers import (
     ControlNetModel,
     DiffusionPipeline,
     StableDiffusionControlNetImg2ImgPipeline,
+    StableDiffusionControlNetPipeline,
     StableDiffusionDepth2ImgPipeline,
     StableDiffusionInpaintPipeline,
     StableDiffusionXLControlNetImg2ImgPipeline,
@@ -166,6 +167,39 @@ class SD2InpaintingRenderer(DiffusionRenderer):
         return images
 
 
+class SD2NormalCheckpointInpaintRenderer(DiffusionRenderer):
+    """
+    SD 2.0 finetuned checkpoint for increased Realism + inpainting
+    checkpoint from https://civitai.com/models/4201?modelVersionId=245598
+
+    """
+
+    def __init__(self, num_images_per_prompt=4, num_inference_steps=50, strength=1.0):
+        super().__init__(num_images_per_prompt, num_inference_steps)
+        self.strength = strength
+        self.pipe = StableDiffusionInpaintPipeline.from_pretrained(
+            "stabilityai/stable-diffusion-2-base",
+            torch_dtype=torch.float16,
+        ).to("cuda")
+
+    def __call__(self, prompt, input_images, **kwargs):
+        rgb_image = input_images.get_rgb_image_torch()
+        mask = input_images.get_mask_torch()
+
+        output_dict = self.pipe(
+            prompt=prompt,
+            negative_prompt=SDV2_NEGATIVE_PROMPT,
+            image=rgb_image,
+            mask_image=mask,
+            num_images_per_prompt=self.num_images_per_prompt,
+            num_inference_steps=self.num_inference_steps,
+            strength=self.strength,
+            generator=self.generator,
+        )
+        images = output_dict.images
+        return images
+
+
 class SD2FromDepthRenderer(DiffusionRenderer):
     """
     Stable Diffusion 2 + native depth conditioning
@@ -216,28 +250,46 @@ class ControlNetRenderer(DiffusionRenderer):
         num_inference_steps: int = 50,
         controlnet_conditioning_scale: float = DEFAULT_CONTROLNET_CONDITIONING_SCALE,
         strength: float = DEFAULT_STRENGTH,
+        use_img2img_pipeline: bool = True,
     ):
         super().__init__(num_images_per_prompt, num_inference_steps)
         self.controlnet_conditioning_scale = controlnet_conditioning_scale
         self.strength = strength
         self.pipe: DiffusionPipeline = None
+        self.use_img2img_pipeline = use_img2img_pipeline
 
     def get_logging_name(self):
-        return f"{self.__class__.__name__}_ccs={self.controlnet_conditioning_scale}"
+        return f"{self.__class__.__name__}_ccs={self.controlnet_conditioning_scale}_{'txt' if self.use_img2img_pipeline else 'img2img'}"
 
     def __call__(self, prompt, input_images, **kwargs):
-        img = self.preprocess_rgb_image(input_images)
-        control = self.get_control_image(input_images)
-        output_dict = self.pipe(
-            prompt=prompt,
-            image=img,
-            control_image=control,
-            num_images_per_prompt=self.num_images_per_prompt,
-            controlnet_conditioning_scale=self.controlnet_conditioning_scale,
-            strength=self.strength,
-            num_inference_steps=self.num_inference_steps,
-            generator=self.generator,
-        )
+        # hacky way to check if this pipeline is an Img2Img pipeline or a regular txt2img pipeline
+
+        # the reason for this is that I have the feeling that even with strenght=1.0, there is still quite some influence from the
+        # initial image, which reduces diversity and complexity of the generated images?
+        # TODO: measure this.
+        if self.use_img2img_pipeline:
+            img = self.preprocess_rgb_image(input_images)
+            control = self.get_control_image(input_images)
+            output_dict = self.pipe(
+                prompt=prompt,
+                image=img,
+                control_image=control,
+                num_images_per_prompt=self.num_images_per_prompt,
+                controlnet_conditioning_scale=self.controlnet_conditioning_scale,
+                strength=self.strength,
+                num_inference_steps=self.num_inference_steps,
+                generator=self.generator,
+            )
+        else:
+            control = self.get_control_image(input_images)
+            output_dict = self.pipe(
+                prompt=prompt,
+                image=control,  # image = control image!
+                num_images_per_prompt=self.num_images_per_prompt,
+                controlnet_conditioning_scale=self.controlnet_conditioning_scale,
+                num_inference_steps=self.num_inference_steps,
+                generator=self.generator,
+            )
         images = output_dict.images
         return images
 
@@ -245,6 +297,9 @@ class ControlNetRenderer(DiffusionRenderer):
         raise NotImplementedError
 
     def preprocess_rgb_image(self, input_images: DiffusionRenderInputImages) -> torch.Tensor:
+
+        # if np.isclose(self.strength, 1.0):
+        #     return torch.randn((1,4,64,64))
         rgb_image = input_images.get_rgb_image_torch()
         if rgb_image.shape[:2] != self.input_resolution:
             rgb_image = torch.nn.functional.interpolate(rgb_image, size=self.input_resolution, mode="bicubic")
@@ -355,6 +410,34 @@ class SDXLControlNetFromCannyRenderer(ControlNetRenderer):
         return images
 
 
+class SD15RealisticCheckpointControlNetFromDepthRenderer(ControlNetRenderer):
+    """
+    SD 1.5 finetuned checkpoint for increased Realism + controlnet trained on inverse depth.
+    checkpoint from https://civitai.com/models/4201?modelVersionId=245598
+
+    """
+
+    def __init__(
+        self,
+        num_images_per_prompt: int = 4,
+        num_inference_steps: int = 50,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
+        strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
+    ):
+
+        # TODO: configure which controlnet and corresponding diffusion model to use?
+        super().__init__(num_images_per_prompt, num_inference_steps, controlnet_conditioning_scale, strength)
+        self.controlnet = ControlNetModel.from_pretrained(
+            "lllyasviel/sd-controlnet-depth", torch_dtype=torch.float16
+        ).to("cuda")
+        self.pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
+            "SG161222/Realistic_Vision_V6.0_B1_noVAE", controlnet=self.controlnet, torch_dtype=torch.float16
+        ).to("cuda")
+
+    def get_control_image(self, input_images: DiffusionRenderInputImages):
+        return input_images.get_inverted_depth_image_torch()
+
+
 class ControlNetFromDepthRenderer(ControlNetRenderer):
     """
     SD1.5 + controlnet 1.1 trained on 'inverse' depth
@@ -376,6 +459,40 @@ class ControlNetFromDepthRenderer(ControlNetRenderer):
         ).to("cuda")
 
         self.pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
+            "runwayml/stable-diffusion-v1-5", controlnet=self.controlnet, torch_dtype=torch.float16
+        ).to("cuda")
+
+    def get_control_image(self, input_images: DiffusionRenderInputImages):
+        return input_images.get_inverted_depth_image_torch()
+
+
+class ControlNetTXTFromDepthRenderer(ControlNetRenderer):
+    """
+    SD1.5 + controlnet 1.1 trained on 'inverse' depth
+    https://huggingface.co/lllyasviel/sd-controlnet-depth
+    """
+
+    def __init__(
+        self,
+        num_images_per_prompt: int = 4,
+        num_inference_steps: int = 50,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
+        strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
+    ):
+
+        # TODO: configure which controlnet and corresponding diffusion model to use?
+        super().__init__(
+            num_images_per_prompt,
+            num_inference_steps,
+            controlnet_conditioning_scale,
+            strength,
+            use_img2img_pipeline=False,
+        )
+        self.controlnet = ControlNetModel.from_pretrained(
+            "lllyasviel/sd-controlnet-depth", torch_dtype=torch.float16
+        ).to("cuda")
+
+        self.pipe = StableDiffusionControlNetPipeline.from_pretrained(
             "runwayml/stable-diffusion-v1-5", controlnet=self.controlnet, torch_dtype=torch.float16
         ).to("cuda")
 

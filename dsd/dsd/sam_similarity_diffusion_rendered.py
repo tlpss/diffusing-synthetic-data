@@ -1,4 +1,3 @@
-download_url = "https://example.com/download"
 """
 proxies for measuring the semantic similarities between the original image (for which we have labels) and the diffusion rendered image (for which we do not have labels).
 """
@@ -6,6 +5,7 @@ import pathlib
 from urllib.request import urlretrieve
 
 import numpy as np
+import torch
 from PIL import Image
 from segment_anything import SamPredictor, sam_model_registry
 from tqdm import tqdm
@@ -49,6 +49,7 @@ def calculate_mask_IoU(mask1: np.ndarray, mask2: np.ndarray) -> float:
     return iou_score
 
 
+@torch.no_grad()
 def calculate_similarities_for_render_dir(render_dir: pathlib.Path, sam_predictor: SamPredictor):
     original_mask = render_dir / "original" / "segmentation.png"
     # get bounding box for the binary mask (0 is background, 1 is foreground)
@@ -133,6 +134,17 @@ if __name__ == "__main__":
 
     sam_predictor = load_sam_model()
 
-    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "small"
+    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_3"
     similarity_dict = calculate_similarities_for_renders(render_dataset, sam_predictor)
-    print(similarity_dict)
+
+    # set the dict keys to relative paths
+    similarity_dict = {str(pathlib.Path(k).relative_to(render_dataset)): v for k, v in similarity_dict.items()}
+
+    # dict to csv
+    import pandas as pd
+
+    df = pd.DataFrame.from_dict(similarity_dict, orient="index", columns=["sam_IoU"])
+    # convert path to proper column and add new index
+    df = df.reset_index()
+    df = df.rename(columns={"index": "relative_path"})
+    df.to_csv(str(render_dataset / "sam_IoUs.csv"))

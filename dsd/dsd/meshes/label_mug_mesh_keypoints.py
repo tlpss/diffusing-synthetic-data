@@ -28,9 +28,9 @@ if __name__ == "__main__":
 
     from dsd import DATA_DIR
 
-    mug_mesh_path = DATA_DIR / "meshes" / "mugs"
-    mug_meshes = list(mug_mesh_path.glob("*.obj"))
-
+    mug_mesh_path = DATA_DIR / "meshes" / "objaverse-mugs"
+    mug_meshes = list(mug_mesh_path.glob("**/*.obj"))
+    print(mug_meshes)
     for mug_mesh_path in mug_meshes:
         mesh = o3d.io.read_triangle_mesh(str(mug_mesh_path))
         vertices = np.array(mesh.vertices)

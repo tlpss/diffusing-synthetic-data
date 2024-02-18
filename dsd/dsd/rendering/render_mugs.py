@@ -6,16 +6,26 @@ import bpy
 import numpy as np
 from airo_blender.materials import add_material
 from mathutils import Vector
+from PIL import Image
 
 from dsd import DATA_DIR
-from dsd.rendering.annotator import annotate_keypoints
+from dsd.rendering.keypoint_annotator import annotate_keypoints
 from dsd.rendering.renderer import CyclesRendererConfig, render_scene
 
 
-def sample_point_in_capped_ball(radius, min_height):
-    x, y = np.random.uniform(-radius, radius, size=2)
-    z = np.random.uniform(min_height, radius)
-    return np.array([x, y, z])
+def sample_point_in_capped_ball(max_radius, min_radius, min_height):
+    max_iterations = 20
+    for _ in range(max_iterations):
+        phi, theta = np.random.uniform(0, 2 * np.pi), np.random.uniform(0, np.pi / 2)
+        r = np.random.uniform(min_radius, max_radius)
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
+
+        if z > min_height:
+            return np.array([x, y, z])
+
+    raise ValueError(f"Could not find a point in the capped ball after {max_iterations} iterations.")
 
 
 def determine_pose_of_camera_looking_at_point(
@@ -54,11 +64,18 @@ def create_camera():
     return camera
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # noqa
+    XY_SCALE_RANGE = (0.8, 1.2)
+    Z_SCALE_RANGE = (0.8, 1.2)
 
     # fix the random seeds to make reproducible renders
     np.random.seed(2024)
     random.seed(2024)
+
+    n_renders = 20
+
+    # input dir
+    mugs_path = DATA_DIR / "meshes/objaverse-mugs/"
 
     # output dir
     output_dir = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -82,7 +99,9 @@ if __name__ == "__main__":
     light.data.size = 2
 
     # add a plane with size 2x2
-    bpy.ops.mesh.primitive_plane_add(size=2)
+    # using a cube with scale 2x2x0.01
+    bpy.ops.mesh.primitive_cube_add(scale=(1, 1, 0.01), location=(0, 0, -0.011))
+
     # make the color of the table dark grey
     table = bpy.context.selected_objects[0]
     add_material(
@@ -94,14 +113,13 @@ if __name__ == "__main__":
         roughness=1.0,
     )
 
-    mugs_path = DATA_DIR / "meshes/mugs"
-    meshes = list(mugs_path.glob("*.obj"))
+    meshes = list(mugs_path.glob("**/*.obj"))
     mug_object = None
     for mesh in meshes:
 
         if mug_object is not None:
             bpy.data.objects.remove(mug_object, do_unlink=True)
-        # load the mug mesh
+
         bpy.ops.import_scene.obj(filepath=str(mesh), axis_forward="Y", axis_up="Z")
         mug_object = bpy.context.selected_objects[0]
         # make the mug white
@@ -115,19 +133,73 @@ if __name__ == "__main__":
         )
         mug_object.pass_index = 1  # for segmentation hacky rendering
 
-        n_renders = 2
-
         mesh_output_dir = output_dir / mesh.stem
         mesh_output_dir.mkdir(parents=True, exist_ok=True)
 
         for i in range(n_renders):
-            # set the camera to a random position
-            camera = create_camera()
-            camera_position = sample_point_in_capped_ball(0.6, 0.2)
-            determine_pose_of_camera_looking_at_point(camera, camera_position, np.array([0, 0, 0]))
-            render_scene(
-                render_config=CyclesRendererConfig(num_samples=8), output_dir=str(mesh_output_dir / f"{i:03d}")
-            )
+            # scale the mug to a random size
+            xy_scale = np.random.uniform(*XY_SCALE_RANGE)
+            z_scale = np.random.uniform(*Z_SCALE_RANGE)
+            scale = (xy_scale, xy_scale, z_scale)
+
+            mug_object.scale = scale
+
+            table.scale[0] = np.random.uniform(0.1, 0.8)
+            table.scale[1] = np.random.uniform(0.1, 0.8)
+
+            # apply scale to the object
+            bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+
+            for j in range(20):
+                if j == 19:
+                    print("Could not find a valid camera position after 20 iterations, skipping this mug.")
+                    break
+
+                # set the camera to a random position
+                camera = create_camera()
+                camera_position = sample_point_in_capped_ball(0.8, 0.3, 0.05)
+
+                # randomize the looking at position around the mug.
+                looking_at_position = np.random.uniform(-0.1, 0.1, 3)
+                looking_at_position[2] = 0.05
+                determine_pose_of_camera_looking_at_point(camera, camera_position, looking_at_position)
+
+                # add slight random rotation to camera
+                camera.rotation_euler += np.random.uniform(-np.pi / 12, np.pi / 12, 3)
+
+                # clear the output dir
+                if (mesh_output_dir / f"{i:03d}").exists():
+                    import shutil
+
+                    shutil.rmtree(mesh_output_dir / f"{i:03d}")
+                render_scene(
+                    render_config=CyclesRendererConfig(num_samples=8), output_dir=str(mesh_output_dir / f"{i:03d}")
+                )
+                # check if the segmentation mask does not border on the image edges
+                # if this is not the case, the object is entirely within view
+
+                segmentation = Image.open(str(mesh_output_dir / f"{i:03d}" / "segmentation.png"))
+                # segmentation.save(str(mesh_output_dir / f"{i:03d}" / f"{j}_segmentation.png"))
+                segmentation = (np.array(segmentation) > 0) * 1.0
+                if (
+                    np.any(segmentation[0, :] == 1)
+                    or np.any(segmentation[-1, :] == 1)
+                    or np.any(segmentation[:, 0] == 1)
+                    or np.any(segmentation[:, -1] == 1)
+                    or np.sum(segmentation) < 10
+                ):
+                    print("Object is not (entirely) within view, re-rendering")
+                    continue
+
+                else:
+                    break
+            if j == 19:
+                print("Could not find a valid camera position after 20 iterations, skipping this mug.")
+                # remove the output dir
+                import shutil
+
+                shutil.rmtree(mesh_output_dir / f"{i:03d}")
+                continue
 
             # save the pose of the mug in the camera frame
             mug_pose = np.eye(4)
@@ -143,9 +215,13 @@ if __name__ == "__main__":
 
             # get the 2D keypoint
             keypoints_3D_dict = json.load(open(str(mesh).split(".")[0] + "_keypoints.json", "r"))
+            # scale the keypoints
+            for key, value in keypoints_3D_dict.items():
+                keypoints_3D_dict[key] = np.array(value) * scale
+
             keypoints_2d = annotate_keypoints(keypoints_3D_dict, camera)
 
-            # plot them on the image
+            # # plot them on the image
             # from PIL import Image, ImageDraw
             # img = Image.open(mesh_output_dir / f"{i:03d}" / "rgb.png")
             # draw = ImageDraw.Draw(img)
