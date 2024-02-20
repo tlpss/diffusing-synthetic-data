@@ -1,3 +1,6 @@
 [submodule "airo-blender"]
 	path = airo-blender
 	url = https://github.com/airo-ugent/airo-blender.git
+[submodule "keypoint-detection"]
+	path = keypoint-detection
+	url = https://github.com/tlpss/keypoint-detection.git
