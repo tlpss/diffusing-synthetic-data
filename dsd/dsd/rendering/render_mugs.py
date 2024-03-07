@@ -75,7 +75,7 @@ if __name__ == "__main__":  # noqa
     n_renders = 20
 
     # input dir
-    mugs_path = DATA_DIR / "meshes/objaverse-mugs/"
+    mugs_path = DATA_DIR / "meshes/objaverse-mugs-filtered/"
 
     # output dir
     output_dir = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -133,6 +133,9 @@ if __name__ == "__main__":  # noqa
         )
         mug_object.pass_index = 1  # for segmentation hacky rendering
 
+        # shade smooth
+        bpy.ops.object.shade_smooth()
+
         mesh_output_dir = output_dir / mesh.stem
         mesh_output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -144,8 +147,8 @@ if __name__ == "__main__":  # noqa
 
             mug_object.scale = scale
 
-            table.scale[0] = np.random.uniform(0.1, 0.8)
-            table.scale[1] = np.random.uniform(0.1, 0.8)
+            table.scale[0] = np.random.uniform(0.2, 0.8)
+            table.scale[1] = np.random.uniform(0.2, 0.8)
 
             # apply scale to the object
             bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
@@ -157,7 +160,7 @@ if __name__ == "__main__":  # noqa
 
                 # set the camera to a random position
                 camera = create_camera()
-                camera_position = sample_point_in_capped_ball(0.8, 0.3, 0.05)
+                camera_position = sample_point_in_capped_ball(0.7, 0.3, 0.05)
 
                 # randomize the looking at position around the mug.
                 looking_at_position = np.random.uniform(-0.1, 0.1, 3)
@@ -165,7 +168,7 @@ if __name__ == "__main__":  # noqa
                 determine_pose_of_camera_looking_at_point(camera, camera_position, looking_at_position)
 
                 # add slight random rotation to camera
-                camera.rotation_euler += np.random.uniform(-np.pi / 12, np.pi / 12, 3)
+                # camera.rotation_euler += np.random.uniform(-np.pi / 36, np.pi / 36, 3)
 
                 # clear the output dir
                 if (mesh_output_dir / f"{i:03d}").exists():
