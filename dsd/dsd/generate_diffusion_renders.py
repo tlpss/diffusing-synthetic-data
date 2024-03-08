@@ -1,6 +1,8 @@
 import random
 import shutil
 
+import numpy as np
+import torch
 import tqdm
 
 from dsd.diffusion_rendering import DiffusionRenderInputImages
@@ -22,6 +24,11 @@ def generate_diffusion_renders(
     image_dirs = [p.parent for p in rgb_image_paths]
 
     for renderer in tqdm.tqdm(diffusion_renderers):
+        # fix seeds to make renders reproducible
+        random.seed(2024)
+        torch.manual_seed(2024)
+        np.random.seed(2024)
+
         renderer, kwargs = renderer
         renderer = renderer(**kwargs)
         # disable NSFW filter
@@ -55,6 +62,11 @@ def generate_crop_inpaint_diffusion_renders(
     image_dirs = [p.parent for p in rgb_image_paths]
 
     for renderer in tqdm.tqdm(diffusion_renderers):
+        # fix seeds to make renders reproducible
+        random.seed(2024)
+        torch.manual_seed(2024)
+        np.random.seed(2024)
+
         # disable NSFW filter
         renderer.inpainter.pipe.safety_checker = None
         renderer.inpainter.pipe.set_progress_bar_config(disable=True)
