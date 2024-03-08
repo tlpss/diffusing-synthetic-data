@@ -7,6 +7,7 @@ import numpy as np
 from airo_blender.materials import add_material
 from mathutils import Vector
 from PIL import Image
+from tqdm import tqdm
 
 from dsd import DATA_DIR
 from dsd.rendering.keypoint_annotator import annotate_keypoints
@@ -40,7 +41,9 @@ def determine_pose_of_camera_looking_at_point(
 
 
 def create_camera():
-    horizontal_fov = 70  # cropped zed camera. vertical fov is 70
+    horizontal_fov = (
+        45  # vertical FOV realsense is 42 # https://www.framos.com/en/products/depth-camera-d415-camera-only-20801
+    )
     horizontal_resolution = 512
     vertical_resolution = 512
 
@@ -72,7 +75,7 @@ if __name__ == "__main__":  # noqa
     np.random.seed(2024)
     random.seed(2024)
 
-    n_renders = 20
+    n_renders = 25
 
     # input dir
     mugs_path = DATA_DIR / "meshes/objaverse-mugs-filtered/"
@@ -115,7 +118,7 @@ if __name__ == "__main__":  # noqa
 
     meshes = list(mugs_path.glob("**/*.obj"))
     mug_object = None
-    for mesh in meshes:
+    for mesh in tqdm(meshes):
 
         if mug_object is not None:
             bpy.data.objects.remove(mug_object, do_unlink=True)
