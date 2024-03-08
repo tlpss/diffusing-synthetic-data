@@ -21,6 +21,7 @@ from diffusers import (
     StableDiffusionDepth2ImgPipeline,
     StableDiffusionInpaintPipeline,
     StableDiffusionXLControlNetImg2ImgPipeline,
+    StableDiffusionXLControlNetPipeline,
 )
 from PIL import Image
 
@@ -167,10 +168,9 @@ class SD2InpaintingRenderer(DiffusionRenderer):
         return images
 
 
-class SD2NormalCheckpointInpaintRenderer(DiffusionRenderer):
+class SD2RegularCheckpointInpaintRenderer(DiffusionRenderer):
     """
-    SD 2.0 finetuned checkpoint for increased Realism + inpainting
-    checkpoint from https://civitai.com/models/4201?modelVersionId=245598
+    SD 2.0 base checkpoint used for inpainting
 
     """
 
@@ -259,7 +259,7 @@ class ControlNetRenderer(DiffusionRenderer):
         self.use_img2img_pipeline = use_img2img_pipeline
 
     def get_logging_name(self):
-        return f"{self.__class__.__name__}_ccs={self.controlnet_conditioning_scale}_{'txt' if self.use_img2img_pipeline else 'img2img'}"
+        return f"{self.__class__.__name__}_ccs={self.controlnet_conditioning_scale}"  # _{'img2img' if self.use_img2img_pipeline else 'txt'}"
 
     def __call__(self, prompt, input_images, **kwargs):
         # hacky way to check if this pipeline is an Img2Img pipeline or a regular txt2img pipeline
@@ -330,6 +330,59 @@ class SDXLControlNetFromDepthRenderer(ControlNetRenderer):
         ).to("cuda")
         self.vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16).to("cuda")
         self.pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(
+            "stabilityai/stable-diffusion-xl-base-1.0",
+            controlnet=self.controlnet,
+            vae=self.vae,
+            variant="fp16",
+            torch_dtype=torch.float16,
+            use_safetensors=True,
+        ).to("cuda")
+        self.pipe.enable_model_cpu_offload()
+
+    def get_control_image(self, input_images: DiffusionRenderInputImages):
+        depth_image = input_images.get_inverted_depth_image_torch()
+        # resize the images to 1024x1024
+        depth_image = torch.nn.functional.interpolate(depth_image, size=(1024, 1024), mode="bicubic")
+        # return torch.randn(1, 3, 1024, 1024)
+        return depth_image
+
+    def __call__(self, prompt, input_images, **kwargs):
+
+        images = super().__call__(prompt, input_images, **kwargs)
+        images = [image.resize((512, 512)) for image in images]
+        return images
+
+
+class SDXLControlNetTXTFromDepthRenderer(ControlNetRenderer):
+    """
+    SD-XL + Controlnet, depth conditioned.
+    https://huggingface.co/docs/diffusers/api/pipelines/controlnet_sdxl#diffusers.StableDiffusionXLControlNetImg2ImgPipeline
+    """
+
+    def __init__(
+        self,
+        num_images_per_prompt: int = 4,
+        num_inference_steps: int = 50,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
+        strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
+    ):
+        super().__init__(
+            num_images_per_prompt,
+            num_inference_steps,
+            controlnet_conditioning_scale,
+            strength,
+            use_img2img_pipeline=False,
+        )
+        self.input_resolution = (1024, 1024)  # SD-XL is trained on 1024x1024 images
+
+        self.controlnet = ControlNetModel.from_pretrained(
+            "diffusers/controlnet-depth-sdxl-1.0-small",
+            variant="fp16",
+            use_safetensors=True,
+            torch_dtype=torch.float16,
+        ).to("cuda")
+        self.vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16).to("cuda")
+        self.pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
             "stabilityai/stable-diffusion-xl-base-1.0",
             controlnet=self.controlnet,
             vae=self.vae,
@@ -431,6 +484,43 @@ class SD15RealisticCheckpointControlNetFromDepthRenderer(ControlNetRenderer):
             "lllyasviel/sd-controlnet-depth", torch_dtype=torch.float16
         ).to("cuda")
         self.pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
+            "SG161222/Realistic_Vision_V6.0_B1_noVAE", controlnet=self.controlnet, torch_dtype=torch.float16
+        ).to("cuda")
+
+    def get_control_image(self, input_images: DiffusionRenderInputImages):
+        return input_images.get_inverted_depth_image_torch()
+
+
+class SD15RealisticCheckpointControlNetTXTFromDepthRenderer(ControlNetRenderer):
+    """
+    SD 1.5 finetuned checkpoint for increased Realism + controlnet trained on inverse depth.
+    checkpoint from https://civitai.com/models/4201?modelVersionId=245598
+
+    txt-to-image pipeline
+
+    """
+
+    def __init__(
+        self,
+        num_images_per_prompt: int = 4,
+        num_inference_steps: int = 50,
+        controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
+        strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
+    ):
+
+        # TODO: configure which controlnet and corresponding diffusion model to use?
+        super().__init__(
+            num_images_per_prompt,
+            num_inference_steps,
+            controlnet_conditioning_scale,
+            strength,
+            use_img2img_pipeline=False,
+        )
+        self.controlnet = ControlNetModel.from_pretrained(
+            "lllyasviel/sd-controlnet-depth", torch_dtype=torch.float16
+        ).to("cuda")
+
+        self.pipe = StableDiffusionControlNetPipeline.from_pretrained(
             "SG161222/Realistic_Vision_V6.0_B1_noVAE", controlnet=self.controlnet, torch_dtype=torch.float16
         ).to("cuda")
 

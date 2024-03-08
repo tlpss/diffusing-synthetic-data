@@ -15,6 +15,8 @@ from airo_dataset_tools.data_parsers.coco import (
 from airo_dataset_tools.segmentation_mask_converter import BinarySegmentationMask
 from PIL import Image
 
+from dsd import DATA_DIR
+
 
 def get_images_per_renderer(render_path: pathlib.Path):
     # get all files in the folder
@@ -106,7 +108,6 @@ def copy_images_and_make_paths_relative(
     # pool.close()
     # pool.join()
     for src, dst in tqdm.tqdm(copy_task_list):
-        print(src, dst)
         copy_img(src, dst)
 
     return coco_dataset
@@ -134,9 +135,8 @@ def generate_coco_datasets(render_path: pathlib.Path, coco_category: CocoKeypoin
 
 
 if __name__ == "__main__":
-    from dsd import DATA_DIR
 
-    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_9"
+    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_10"
     category = CocoKeypointCategory(
         id=0, name="mug", supercategory="mug", keypoints=["bottom", "handle", "top"], skeleton=[[0, 1], [1, 2]]
     )
