@@ -68,8 +68,8 @@ def create_camera():
 
 
 if __name__ == "__main__":  # noqa
-    XY_SCALE_RANGE = (0.8, 1.2)
-    Z_SCALE_RANGE = (0.8, 1.2)
+    # XY_SCALE_RANGE = (0.8, 1.2)
+    # Z_SCALE_RANGE = (0.8, 1.2)
 
     # fix the random seeds to make reproducible renders
     np.random.seed(2024)
@@ -143,12 +143,12 @@ if __name__ == "__main__":  # noqa
         mesh_output_dir.mkdir(parents=True, exist_ok=True)
 
         for i in range(n_renders):
-            # scale the mug to a random size
-            xy_scale = np.random.uniform(*XY_SCALE_RANGE)
-            z_scale = np.random.uniform(*Z_SCALE_RANGE)
-            scale = (xy_scale, xy_scale, z_scale)
 
-            mug_object.scale = scale
+            # scale the mug to a random size
+            # xy_scale = np.random.uniform(*XY_SCALE_RANGE)
+            # z_scale = np.random.uniform(*Z_SCALE_RANGE)
+            # scale = (xy_scale, xy_scale, z_scale)
+            # mug_object.scale = scale
 
             table.scale[0] = np.random.uniform(0.2, 0.8)
             table.scale[1] = np.random.uniform(0.2, 0.8)
@@ -222,8 +222,8 @@ if __name__ == "__main__":  # noqa
             # get the 2D keypoint
             keypoints_3D_dict = json.load(open(str(mesh).split(".")[0] + "_keypoints.json", "r"))
             # scale the keypoints
-            for key, value in keypoints_3D_dict.items():
-                keypoints_3D_dict[key] = np.array(value) * scale
+            # for key, value in keypoints_3D_dict.items():
+            #     keypoints_3D_dict[key] = np.array(value) * scale
 
             keypoints_2d = annotate_keypoints(keypoints_3D_dict, camera)
 
