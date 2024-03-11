@@ -22,6 +22,7 @@ def generate_diffusion_renders(
 ):
     rgb_image_paths = list(source_directory.glob("**/rgb.png"))
     image_dirs = [p.parent for p in rgb_image_paths]
+    image_dirs = sorted(image_dirs)
 
     for renderer in tqdm.tqdm(diffusion_renderers):
         # fix seeds to make renders reproducible
@@ -35,7 +36,7 @@ def generate_diffusion_renders(
         renderer.pipe.safety_checker = None
 
         renderer.pipe.set_progress_bar_config(disable=True)
-        for image_dir in tqdm.tqdm(image_dirs, desc="diffusion renderers"):
+        for image_dir in tqdm.tqdm(image_dirs):
             relative_path_to_source_dir = image_dir.relative_to(source_directory)
             image_target_dir = target_directory / relative_path_to_source_dir
             image_target_dir.mkdir(parents=True, exist_ok=True)
@@ -60,6 +61,7 @@ def generate_crop_inpaint_diffusion_renders(
 ):
     rgb_image_paths = list(source_directory.glob("**/rgb.png"))
     image_dirs = [p.parent for p in rgb_image_paths]
+    image_dirs = sorted(image_dirs)
 
     for renderer in tqdm.tqdm(diffusion_renderers):
         # fix seeds to make renders reproducible
