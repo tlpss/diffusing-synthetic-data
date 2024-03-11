@@ -9,6 +9,7 @@ channels:
   - nvidia
   - pytorch
 dependencies:
+  - python=3.10
   - pytorch
   - torchvision
   - cuda=11.8
