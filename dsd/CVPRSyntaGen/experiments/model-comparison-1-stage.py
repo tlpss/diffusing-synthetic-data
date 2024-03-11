@@ -32,7 +32,7 @@ prompts = [prompt.replace(", ,", ",") for prompt in prompts]
 prompts = [prompt.rstrip(", ") for prompt in prompts]
 
 
-source_directory = DATA_DIR / "renders" / "mugs" / "objaverse-filtered-2000"
+source_directory = DATA_DIR / "renders" / "mugs" / "objaverse-filtered-2500"
 target_directory = DATA_DIR / "diffusion_renders" / "mugs" / "cvpr" / "model-comparison-1-stage"
 
 # clear if exists
@@ -43,7 +43,7 @@ target_directory.mkdir(parents=True, exist_ok=True)
 
 
 num_images_per_prompt = 2
-num_prompts_per_scene = 2
+num_prompts_per_scene = 1
 all_diffusion_renderers = [
     (SD15RealisticCheckpointControlNetFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
     (SD15RealisticCheckpointControlNetTXTFromDepthRenderer, {"num_images_per_prompt": num_images_per_prompt}),
@@ -56,11 +56,11 @@ all_diffusion_renderers = [
 
 
 @click.command()
-@click.option("--renderer_idx", type=int, default=-1)
+@click.option("--renderers_idx", type=int, multiple=True, default=[])
 @click.option("--create_coco_datasets", type=bool, default=False)
-def main(renderer_idx, create_coco_datasets):
-    if renderer_idx >= 0:
-        diffusion_renderers = [all_diffusion_renderers[renderer_idx]]
+def main(renderers_idx, create_coco_datasets):
+    if len(renderers_idx) > 0:
+        diffusion_renderers = [all_diffusion_renderers[i] for i in renderers_idx]
     else:
         diffusion_renderers = all_diffusion_renderers
     generate_diffusion_renders(
