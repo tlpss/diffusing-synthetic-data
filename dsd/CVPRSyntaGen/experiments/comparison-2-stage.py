@@ -46,18 +46,6 @@ config_dict = {
 }
 
 
-def build_model(config_dict):
-    renderer = config_dict["renderer"]["class"](**config_dict["renderer"]["args"])
-    cropped_renderer = config_dict["cropped_renderer"]["class"](
-        renderer=renderer, **config_dict["cropped_renderer"]["args"]
-    )
-    inpainter = config_dict["inpainter"]["class"](**config_dict["inpainter"]["args"])
-    crop_and_inpainter = config_dict["crop_and_inpainter"]["class"](
-        crop_renderer=cropped_renderer, inpainter=inpainter, **config_dict["crop_and_inpainter"]["args"]
-    )
-    return crop_and_inpainter
-
-
 # TODO: think of more elegant config generation
 # Hydra?
 all_diffusion_renderer_configs = [
@@ -113,22 +101,34 @@ all_diffusion_renderer_configs = [
 ]
 
 
+def build_model(config_dict):
+    renderer = config_dict["renderer"]["class"](**config_dict["renderer"]["args"])
+    cropped_renderer = config_dict["cropped_renderer"]["class"](
+        renderer=renderer, **config_dict["cropped_renderer"]["args"]
+    )
+    inpainter = config_dict["inpainter"]["class"](**config_dict["inpainter"]["args"])
+    crop_and_inpainter = config_dict["crop_and_inpainter"]["class"](
+        crop_renderer=cropped_renderer, inpainter=inpainter, **config_dict["crop_and_inpainter"]["args"]
+    )
+    return crop_and_inpainter
+
+
 class LazyInitialisationModels:
     "avoid memory overhead by initialising models only when needed"
     # TODO: is there a more elegant way to do this?
+    def __init__(self, configs):
+        self.configs = configs
+
     def __iter__(self):
         self.idx = 0
         return self
 
     def __next__(self):
-        if self.idx < len(all_diffusion_renderer_configs):
+        if self.idx < len(self.configs):
             self.idx += 1
-            return build_model(all_diffusion_renderer_configs[self.idx - 1])
+            return build_model(self.configs[self.idx - 1])
         else:
             raise StopIteration
-
-
-all_diffusion_renderers = LazyInitialisationModels()
 
 
 @click.command()
@@ -136,9 +136,12 @@ all_diffusion_renderers = LazyInitialisationModels()
 @click.option("--create_coco_datasets", type=bool, default=False)
 def main(renderers_idx, create_coco_datasets):
     if len(renderers_idx) > 0:
-        diffusion_renderers = [all_diffusion_renderers[i] for i in renderers_idx]
+        diffusion_renderers = [all_diffusion_renderer_configs[i] for i in renderers_idx]
     else:
-        diffusion_renderers = all_diffusion_renderers
+        diffusion_renderers = all_diffusion_renderer_configs
+
+    diffusion_renderers = LazyInitialisationModels(diffusion_renderers)
+
     generate_crop_inpaint_diffusion_renders(
         source_directory,
         target_directory,
