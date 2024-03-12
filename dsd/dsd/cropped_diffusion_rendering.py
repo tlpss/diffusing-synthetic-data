@@ -50,10 +50,10 @@ def add_margin_to_bbox(bbox: Bbox, margin: int, mask: np.ndarray) -> Bbox:
 
 
 class ObjectCroppedDiffusionRenderInputImages(DiffusionRenderInputImages):
-    def __init__(self, input_images: DiffusionRenderInputImages):
+    def __init__(self, input_images: DiffusionRenderInputImages, bbox_padding: int = 10):
         self.original_input_images = input_images
         self.original_bbox = get_bbox_from_mask(input_images.mask)
-        self.original_bbox = add_margin_to_bbox(self.original_bbox, 10, input_images.mask)
+        self.original_bbox = add_margin_to_bbox(self.original_bbox, bbox_padding, input_images.mask)
 
         cropped_input_images = copy.deepcopy(input_images)
         cropped_input_images.rgb_image = np.copy(input_images.rgb_image)
@@ -65,8 +65,10 @@ class ObjectCroppedDiffusionRenderInputImages(DiffusionRenderInputImages):
 
 
 class CroppedRenderer(DiffusionRenderer):
-    def __init__(self, renderer: DiffusionRenderer):
+    def __init__(self, renderer: DiffusionRenderer, bbox_padding: int = 10, only_change_mask: bool = True):
         self.renderer = renderer
+        self.bbox_margin = bbox_padding
+        self.only_change_mask = only_change_mask
 
     def __call__(self, prompt, input_images: DiffusionRenderInputImages, **kwargs):
         cropped_input_images = ObjectCroppedDiffusionRenderInputImages(input_images)
@@ -86,21 +88,28 @@ class CroppedRenderer(DiffusionRenderer):
                     cropped_input_images.original_bbox.max_y - cropped_input_images.original_bbox.min_y,
                 ),
             )
-            # mask the original image, so that only the object mask is changed
-            # note that this is not the same as using inpainting, because the diffusion model never gets to see the original image
-            results_numpy[i][input_images.mask < 0.5] = input_images.rgb_image[input_images.mask < 0.5]
+            if self.only_change_mask:
+                # mask the original image, so that only the object mask is changed
+                # note that this is not the same as using inpainting, because the diffusion model never gets to see the original image
+                results_numpy[i][input_images.mask < 0.5] = input_images.rgb_image[input_images.mask < 0.5]
         results = [Image.fromarray((image * 255).astype(np.uint8)) for image in results_numpy]
         return results
 
+    def get_logging_name(self) -> str:
+        return f"Cropped:{self.renderer.get_logging_name()}, margin={self.bbox_margin}, only_change_mask={self.only_change_mask})"
+
 
 class CropAndInpaintRenderer(DiffusionRenderer):
-    def __init__(self, crop_renderer: CroppedRenderer, inpainter: DiffusionRenderer):
+    def __init__(
+        self, crop_renderer: CroppedRenderer, inpainter: DiffusionRenderer, mask_dilation_iterations: int = 1
+    ):
         self.crop_renderer = crop_renderer
         self.inpainter = inpainter
+        self.mask_dilation_iterations = mask_dilation_iterations
 
     def __call__(self, prompt: str, background_prompt: str, input_images: DiffusionRenderInputImages, **kwargs):
-        print("prompt", prompt)
-        print("background_prompt", background_prompt)
+        # print("prompt", prompt)
+        # print("background_prompt", background_prompt)
 
         stage_1_results = self.crop_renderer(prompt, input_images, **kwargs)
         stage_2_inputs = DiffusionRenderInputImages(
@@ -111,12 +120,16 @@ class CropAndInpaintRenderer(DiffusionRenderer):
         # invert the mask to inpaint the background
         # but first dilate it slightly to limit 'blurring' by the diffusion inpaint model
         # which tries to make the transition between the mask and the non-mask smooth
-        stage_2_inputs.mask = cv2.dilate(stage_2_inputs.mask, np.ones((5, 5), np.uint8), iterations=1)
+        stage_2_inputs.mask = cv2.dilate(
+            stage_2_inputs.mask, np.ones((5, 5), np.uint8), iterations=self.mask_dilation_iterations
+        )
         stage_2_inputs.mask = 1 - stage_2_inputs.mask
         # duplicate the input image to create one for each stage 1 result
         stage_2_inputs = [copy.deepcopy(stage_2_inputs) for _ in stage_1_results]
-        # set the input images to the stage 1 results
-        stage_2_results = [x for x in stage_1_results]
+
+        stage_2_results = []
+        # add the stage 1 results to the stage 2 results
+        # stage_2_results = [x for x in stage_1_results]
         for i, result in enumerate(stage_1_results):
             stage_2_inputs[i].rgb_image = np.array(result).astype(np.float32) / 255.0
             stage_2_result = self.inpainter(background_prompt, stage_2_inputs[i], **kwargs)
@@ -129,6 +142,9 @@ class CropAndInpaintRenderer(DiffusionRenderer):
             stage_2_results.extend(stage_2_result)
 
         return stage_2_results
+
+    def get_logging_name(self) -> str:
+        return f"2stage:crop={self.crop_renderer.get_logging_name()}, inp={self.inpainter.get_logging_name()}, dilation={self.mask_dilation_iterations})"
 
 
 # def crop_and_diffuse(crop_renderer: CroppedRenderer, inpainter: DiffusionRenderer, input_images: DiffusionRenderInputImages, object_prompt, background_prompt,**kwargs):

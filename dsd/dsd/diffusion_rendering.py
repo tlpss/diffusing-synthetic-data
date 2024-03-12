@@ -200,6 +200,32 @@ class SD2RegularCheckpointInpaintRenderer(DiffusionRenderer):
         return images
 
 
+class SD15InpaintingRenderer(DiffusionRenderer):
+    def __init__(self, num_images_per_prompt=4, num_inference_steps=50, strength=1.0):
+        super().__init__(num_images_per_prompt, num_inference_steps)
+        self.strength = strength
+        self.pipe = StableDiffusionInpaintPipeline.from_pretrained(
+            "runwayml/stable-diffusion-inpainting",
+            torch_dtype=torch.float16,
+        ).to("cuda")
+
+    def __call__(self, prompt, input_images, **kwargs):
+        rgb_image = input_images.get_rgb_image_torch()
+        mask = input_images.get_mask_torch()
+
+        output_dict = self.pipe(
+            prompt=prompt,
+            image=rgb_image,
+            mask_image=mask,
+            num_images_per_prompt=self.num_images_per_prompt,
+            num_inference_steps=self.num_inference_steps,
+            strength=self.strength,
+            generator=self.generator,
+        )
+        images = output_dict.images
+        return images
+
+
 class SD2FromDepthRenderer(DiffusionRenderer):
     """
     Stable Diffusion 2 + native depth conditioning
