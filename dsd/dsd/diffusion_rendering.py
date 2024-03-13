@@ -167,6 +167,9 @@ class SD2InpaintingRenderer(DiffusionRenderer):
         images = output_dict.images
         return images
 
+    def get_logging_name(self):
+        return f"{self.__class__.__name__}_strength={self.strength}"
+
 
 class SD2RegularCheckpointInpaintRenderer(DiffusionRenderer):
     """
@@ -199,6 +202,9 @@ class SD2RegularCheckpointInpaintRenderer(DiffusionRenderer):
         images = output_dict.images
         return images
 
+    def get_logging_name(self):
+        return f"{self.__class__.__name__}_strength={self.strength}"
+
 
 class SD15InpaintingRenderer(DiffusionRenderer):
     def __init__(self, num_images_per_prompt=4, num_inference_steps=50, strength=1.0):
@@ -224,6 +230,9 @@ class SD15InpaintingRenderer(DiffusionRenderer):
         )
         images = output_dict.images
         return images
+
+    def get_logging_name(self):
+        return f"{self.__class__.__name__}_strength={self.strength}"
 
 
 class SD2FromDepthRenderer(DiffusionRenderer):

@@ -35,7 +35,7 @@ COPY dsd/CVPRSyntaGen /dsd/CVPRSyntaGen
 RUN pip install -e /dsd
 
 # link the project mount
-RUN ln -s /project_antwerp/dsd/data /data
+# RUN ln -s /project_antwerp/dsd/data /data
 
 # set hugginface caching dir
 # to avoid going over 10GB limit
