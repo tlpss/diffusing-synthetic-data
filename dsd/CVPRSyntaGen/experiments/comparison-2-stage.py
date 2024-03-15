@@ -84,13 +84,6 @@ all_diffusion_renderer_configs = [
         "inpainter": {"class": SD2InpaintingRenderer, "args": {"num_images_per_prompt": 1, "strength": 1}},
         "crop_and_inpainter": {"class": CropAndInpaintRenderer, "args": {"mask_dilation_iterations": 3}},
     },
-    # lower inpainting strength
-    {
-        "renderer": {"class": ControlNetFromDepthRenderer, "args": {"num_images_per_prompt": num_images_per_prompt}},
-        "cropped_renderer": {"class": CroppedRenderer, "args": {"bbox_padding": 10, "only_change_mask": True}},
-        "inpainter": {"class": SD2InpaintingRenderer, "args": {"num_images_per_prompt": 1, "strength": 0.8}},
-        "crop_and_inpainter": {"class": CropAndInpaintRenderer, "args": {"mask_dilation_iterations": 1}},
-    },
     # SD1.5 inpainting model
     {
         "renderer": {"class": ControlNetFromDepthRenderer, "args": {"num_images_per_prompt": num_images_per_prompt}},

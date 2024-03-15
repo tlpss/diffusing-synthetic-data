@@ -19,6 +19,7 @@ from diffusers import (
     StableDiffusionControlNetImg2ImgPipeline,
     StableDiffusionControlNetPipeline,
     StableDiffusionDepth2ImgPipeline,
+    StableDiffusionImg2ImgPipeline,
     StableDiffusionInpaintPipeline,
     StableDiffusionXLControlNetImg2ImgPipeline,
     StableDiffusionXLControlNetPipeline,
@@ -133,6 +134,31 @@ class DiffusionRenderer:
 
     def get_logging_name(self):
         return self.__class__.__name__
+
+
+class SD2Image2ImageRenderer(DiffusionRenderer):
+    def __init__(self, num_images_per_prompt=4, num_inference_steps=50, strength=0.8):
+        super().__init__(num_images_per_prompt, num_inference_steps)
+        self.strength = strength
+        self.pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
+            "stabilityai/stable-diffusion-2-base",
+            torch_dtype=torch.float16,
+        ).to("cuda")
+
+    def __call__(self, prompt, input_images, **kwargs):
+        rgb_image = input_images.get_rgb_image_torch()
+
+        output_dict = self.pipe(
+            prompt=prompt,
+            negative_prompt=SDV2_NEGATIVE_PROMPT,
+            image=rgb_image,
+            num_images_per_prompt=self.num_images_per_prompt,
+            num_inference_steps=self.num_inference_steps,
+            strength=self.strength,
+            generator=self.generator,
+        )
+        images = output_dict.images
+        return images
 
 
 class SD2InpaintingRenderer(DiffusionRenderer):
