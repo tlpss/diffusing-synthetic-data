@@ -56,21 +56,31 @@ class CLIPScoreCalculator:
 
 
 if __name__ == "__main__":
-    from dsd import DATA_DIR
+    pass
 
-    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_3"
+    import click
 
-    clip_scorer = CLIPScoreCalculator()
-    similarity_dict = clip_scorer.calculate_scores(render_dataset)
+    @click.command()
+    @click.option(
+        "--renders_dir",
+        type=pathlib.Path,
+        help="path to the directory containing the renders for all meshes, may contain multiple renderers",
+    )
+    def main(renders_dir):
+        render_dataset = renders_dir
+        clip_scorer = CLIPScoreCalculator()
+        similarity_dict = clip_scorer.calculate_scores(render_dataset)
 
-    # set the dict keys to relative paths
-    similarity_dict = {str(pathlib.Path(k).relative_to(render_dataset)): v for k, v in similarity_dict.items()}
+        # set the dict keys to relative paths
+        similarity_dict = {str(pathlib.Path(k).relative_to(render_dataset)): v for k, v in similarity_dict.items()}
 
-    # dict to csv
-    import pandas as pd
+        # dict to csv
+        import pandas as pd
 
-    df = pd.DataFrame.from_dict(similarity_dict, orient="index", columns=["clip_score"])
-    # convert path to proper column and add new index
-    df = df.reset_index()
-    df = df.rename(columns={"index": "relative_path"})
-    df.to_csv(str(render_dataset / "clip_scores.csv"))
+        df = pd.DataFrame.from_dict(similarity_dict, orient="index", columns=["clip_score"])
+        # convert path to proper column and add new index
+        df = df.reset_index()
+        df = df.rename(columns={"index": "relative_path"})
+        df.to_csv(str(render_dataset / "clip_scores.csv"))
+
+    main()
