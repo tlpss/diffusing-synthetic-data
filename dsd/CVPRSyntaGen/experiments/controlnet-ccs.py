@@ -57,6 +57,14 @@ all_diffusion_renderers = [
         ControlNetFromDepthRenderer,
         {"num_images_per_prompt": num_images_per_prompt, "controlnet_conditioning_scale": 2.0},
     ),
+    (
+        ControlNetFromDepthRenderer,
+        {"num_images_per_prompt": num_images_per_prompt, "controlnet_conditioning_scale": 2.5},
+    ),
+    (
+        ControlNetFromDepthRenderer,
+        {"num_images_per_prompt": num_images_per_prompt, "controlnet_conditioning_scale": 3.0},
+    ),
 ]
 
 

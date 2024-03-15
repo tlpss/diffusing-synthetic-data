@@ -130,21 +130,31 @@ def calculate_similarities_for_renders(render_path: pathlib.Path, sam_predictor:
 
 
 if __name__ == "__main__":
-    from dsd import DATA_DIR
+    import click
 
-    sam_predictor = load_sam_model()
+    @click.command()
+    @click.option(
+        "--renders_dir",
+        type=pathlib.Path,
+        help="path to the directory containing the renders for all meshes, may contain multiple renderers",
+    )
+    def main(renders_dir: pathlib.Path):
+        sam_predictor = load_sam_model()
 
-    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_3"
-    similarity_dict = calculate_similarities_for_renders(render_dataset, sam_predictor)
+        # render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_3"
+        render_dataset = renders_dir
+        similarity_dict = calculate_similarities_for_renders(render_dataset, sam_predictor)
 
-    # set the dict keys to relative paths
-    similarity_dict = {str(pathlib.Path(k).relative_to(render_dataset)): v for k, v in similarity_dict.items()}
+        # set the dict keys to relative paths
+        similarity_dict = {str(pathlib.Path(k).relative_to(render_dataset)): v for k, v in similarity_dict.items()}
 
-    # dict to csv
-    import pandas as pd
+        # dict to csv
+        import pandas as pd
 
-    df = pd.DataFrame.from_dict(similarity_dict, orient="index", columns=["sam_IoU"])
-    # convert path to proper column and add new index
-    df = df.reset_index()
-    df = df.rename(columns={"index": "relative_path"})
-    df.to_csv(str(render_dataset / "sam_IoUs.csv"))
+        df = pd.DataFrame.from_dict(similarity_dict, orient="index", columns=["sam_IoU"])
+        # convert path to proper column and add new index
+        df = df.reset_index()
+        df = df.rename(columns={"index": "relative_path"})
+        df.to_csv(str(render_dataset / "sam_IoUs.csv"))
+
+    main()
