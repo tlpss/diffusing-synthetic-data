@@ -3,7 +3,9 @@ class WandbRuns:
     main = {
         "ControlNetFromDepthRenderer_ccs=1.5": "tlips/dsd-mugs-cvpr/runs/037wt4ly",
     }
-
+    main_2_stage = {
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,margin=15,only_change_mask=False,inp=SD2InpaintingRenderer_strength=1,dilation=3": "dsd-mugs-cvpr/runs/7us7fkqc"
+    }
     model_comparison_1_stage = {
         "ControlNetFromDepthRenderer_ccs=1.5": "tlips/dsd-mugs-cvpr/runs/s4yfql9w",
         "ControlNetTXTFromDepthRenderer_ccs=1.5": "tlips/dsd-mugs-cvpr/runs/l95jg7ji",
@@ -35,6 +37,7 @@ class WandbRuns:
     all_checkpoint_dict = {
         "real": real,
         "large-run": main,
+        "large-run-2-stage": main_2_stage,
         "model-comparison-1-stage": model_comparison_1_stage,
         "ccs-comparison": ccs_comparison,
         "stage-2-comparison": model_comparison_2_stage,

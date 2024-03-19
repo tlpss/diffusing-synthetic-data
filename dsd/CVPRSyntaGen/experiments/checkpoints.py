@@ -3,7 +3,9 @@ class Checkpoints:
     main = {
         "ControlNetFromDepthRenderer_ccs=1.5": "tlips/dsd-mugs-cvpr/model-037wt4ly:v0",
     }
-
+    main_2_stage = {
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,margin=15,only_change_mask=False,inp=SD2InpaintingRenderer_strength=1,dilation=3": "tlips/dsd-mugs-cvpr/model-7us7fkqc:v0"
+    }
     model_comparison_1_stage = {
         "ControlNetFromDepthRenderer_ccs=1.5": "tlips/dsd-mugs-cvpr/model-s4yfql9w:v0",
         "ControlNetTXTFromDepthRenderer_ccs=1.5": "tlips/dsd-mugs-cvpr/model-l95jg7ji:v0",
@@ -35,6 +37,7 @@ class Checkpoints:
     all_checkpoint_dict = {
         "real": real,
         "large-run": main,
+        "large-run-2-stage": main_2_stage,
         "model-comparison-1-stage": model_comparison_1_stage,
         "ccs-comparison": ccs_comparison,
         "stage-2-comparison": model_comparison_2_stage,
