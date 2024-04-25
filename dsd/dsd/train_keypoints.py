@@ -16,11 +16,11 @@ DEFAULT_DICT = {
     # "json_validation_dataset_path": "",
     "max_epochs": 10,
     "maximal_gt_keypoint_pixel_distances": "'8 16 32'",  # quotes are need to avoid splitting in list
-    "minimal_keypoint_extraction_pixel_distance": 6,
+    "minimal_keypoint_extraction_pixel_distance": 8,
     "precision": 16,
     "seed": 2024,
     # determined based on hparam sweep
-    "heatmap_sigma": 5,
+    "heatmap_sigma": 8,
     "learning_rate": 0.0003,
     "batch_size": 8,
     ###
@@ -45,8 +45,11 @@ def _create_command(arg_dict):
 def train_on_synthetic_dataset(synthetic_dataset_path, default_arg_dict):
     arg_dict = default_arg_dict.copy()
     arg_dict["json_dataset_path"] = str(synthetic_dataset_path / "annotations.json")
-    # arg_dict["json_validation_dataset_path"] = str(DATA_DIR / "real"/"mugs"/"lab-mugs_resized_512x512"/"lab-mugs_val.json")
+    arg_dict["json_validation_dataset_path"] = str(
+        DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_val.json"
+    )
     arg_dict["wandb_name"] = f"mugs-{synthetic_dataset_path.relative_to(synthetic_dataset_path.parents[1])}"
+    # arg_dict["limit_train_batches"] = 600
     command = _create_command(arg_dict)
     subprocess.run(command, shell=True)
 
@@ -96,11 +99,22 @@ def train_on_kpam_dsd():
     subprocess.run(command, shell=True)
 
 
+def train_on_robot_dsd():
+    arg_dict = MUG_DICT.copy()
+    arg_dict["json_dataset_path"] = DATA_DIR / "real" / "mugs" / "dsd-mugs-robot" / "annotations.json"
+    arg_dict["json_validation_dataset_path"] = (
+        DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_val.json"
+    )
+
+    arg_dict["wandb_name"] = "robot-dsd-mugs"
+
+    command = _create_command(arg_dict)
+    subprocess.run(command, shell=True)
+
+
 if __name__ == "__main__":
-    # train_on_real(
-    #     DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_train.json",
-    #     DATA_DIR / "real" / "mugs" / "lab-mugs_resized_512x512" / "lab-mugs_val.json",
-    # )
-    # train_on_experiment(DATA_DIR / "diffusion_renders" / "coco"  / "mugs" / "run_9")
-    # train_on_synthetic_dataset(DATA_DIR / "diffusion_renders" / "coco"  / "mugs" / "run_3" / "SD15RealisticCheckpointControlNetFromDepthRenderer_ccs=1.5", MUG_DICT.copy())
-    train_on_kpam_dsd()
+    # train_on_experiment(DATA_DIR / "diffusion_renders" / "coco"  / "mugs" / "run_10")
+    # train_on_kpam_dsd()
+    train_on_robot_dsd()
+    # train_on_experiment(DATA_DIR / "diffusion_renders" / "mugs" / "cvpr"/ "model-comparison-1-stage")
+    train_on_experiment(DATA_DIR / "diffusion_renders" / "mugs" / "cvpr" / "large-run")

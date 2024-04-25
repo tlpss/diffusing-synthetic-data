@@ -1,0 +1,134 @@
+{
+    "real": {
+        "dsd": {
+            "bottom": 9.412352259018842,
+            "handle": 20.352344568083886,
+            "top": 18.622709341320704
+        },
+        "kpam": {
+            "bottom": 36.725933867342334,
+            "handle": 68.79016752834738,
+            "top": 64.10916346078241
+        }
+    },
+    "large-run": {
+        "ControlNetFromDepthRenderer_ccs=1.5": {
+            "bottom": 11.614487540020662,
+            "handle": 12.437805392304245,
+            "top": 17.172829543568486
+        }
+    },
+    "large-run-2-stage": {
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,margin=15,only_change_mask=False,inp=SD2InpaintingRenderer_strength=1,dilation=3": {
+            "bottom": 11.355505522559671,
+            "handle": 8.915237863858541,
+            "top": 15.011768514151251
+        }
+    },
+    "model-comparison-1-stage": {
+        "ControlNetFromDepthRenderer_ccs=1.5": {
+            "bottom": 11.67166039943695,
+            "handle": 8.64559352965582,
+            "top": 19.639319729550454
+        },
+        "ControlNetTXTFromDepthRenderer_ccs=1.5": {
+            "bottom": 11.986653064278995,
+            "handle": 14.686682276174325,
+            "top": 18.319286884362164
+        },
+        "SD2FromDepthRenderer": {
+            "bottom": 14.770419944033904,
+            "handle": 10.815507541708394,
+            "top": 18.169095509417115
+        },
+        "SD2InpaintingRenderer": {
+            "bottom": 38.827978425867414,
+            "handle": 136.40897505250695,
+            "top": 102.35920976616734
+        },
+        "SD15RealisticCheckpointControlNetFromDepthRenderer_ccs=1.5": {
+            "bottom": 10.596891366734225,
+            "handle": 10.675270970986814,
+            "top": 19.461915279622605
+        },
+        "SD15RealisticCheckpointControlNetTXTFromDepthRenderer_ccs=1.5": {
+            "bottom": 10.973836713678697,
+            "handle": 11.322078871078231,
+            "top": 17.023381859382276
+        },
+        "SDXLControlNetTXTFromDepthRenderer_ccs=1.5": {
+            "bottom": 10.588946289174697,
+            "handle": 14.292738998017343,
+            "top": 18.205245421874565
+        }
+    },
+    "ccs-comparison": {
+        "ControlNetFromDepthRenderer_ccs=0.5": {
+            "bottom": 17.16990712670719,
+            "handle": 14.30252260253543,
+            "top": 32.826129927329745
+        },
+        "ControlNetFromDepthRenderer_ccs=1.0": {
+            "bottom": 12.412881171002107,
+            "handle": 12.050120418574535,
+            "top": 17.70226529017886
+        },
+        "ControlNetFromDepthRenderer_ccs=1.3": {
+            "bottom": 12.066847008817335,
+            "handle": 10.453985205312975,
+            "top": 18.49522647908574
+        },
+        "ControlNetFromDepthRenderer_ccs=1.5": {
+            "bottom": 11.67166039943695,
+            "handle": 8.64559352965582,
+            "top": 19.639319729550454
+        },
+        "ControlNetFromDepthRenderer_ccs=2.0": {
+            "bottom": 13.719905314725988,
+            "handle": 16.423506916785726,
+            "top": 23.521494911658806
+        },
+        "ControlNetFromDepthRenderer_ccs=2.5": {
+            "bottom": 12.710373872869155,
+            "handle": 15.879438290790636,
+            "top": 25.218045546490952
+        },
+        "ControlNetFromDepthRenderer_ccs=3.0": {
+            "bottom": 13.55291191549862,
+            "handle": 12.857744197322898,
+            "top": 21.906787655955956
+        }
+    },
+    "stage-2-comparison": {
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,_margin=10,_only_change_mask=True,_inp=SD2InpaintingRenderer,_dilation=0": {
+            "bottom": 11.848055306602927,
+            "handle": 23.51826130532894,
+            "top": 28.9379997240691
+        },
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,_margin=10,_only_change_mask=True,_inp=SD2InpaintingRenderer,_dilation=1": {
+            "bottom": 12.074166419926811,
+            "handle": 23.377343597055294,
+            "top": 23.191505795696028
+        },
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,_margin=10,_only_change_mask=True,_inp=SD2InpaintingRenderer,_dilation=2": {
+            "bottom": 12.601625149390276,
+            "handle": 23.85309790997278,
+            "top": 23.37880254470581
+        },
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,_margin=10,_only_change_mask=True,_inp=SD2InpaintingRenderer,_dilation=5": {
+            "bottom": 14.922190889190224,
+            "handle": 30.305463037523282,
+            "top": 28.19576386073306
+        },
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,_margin=10,_only_change_mask=True,_inp=SD15InpaintingRenderer,_dilation=1": {
+            "bottom": 12.944044064073001,
+            "handle": 31.667311566216604,
+            "top": 27.60163466192225
+        },
+        "2stage:crop=Cropped:ControlNetFromDepthRenderer_ccs=1.5,_margin=15,_only_change_mask=False,_inp=SD2InpaintingRenderer,_dilation=3": {
+            "bottom": 11.467457587578718,
+            "handle": 8.362151563573045,
+            "top": 16.143963418397192
+        }
+    }
+}

@@ -136,7 +136,7 @@ def generate_coco_datasets(render_path: pathlib.Path, coco_category: CocoKeypoin
 
 if __name__ == "__main__":
 
-    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "run_10"
+    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "cvpr" / "large-run-2-stage"
     category = CocoKeypointCategory(
         id=0, name="mug", supercategory="mug", keypoints=["bottom", "handle", "top"], skeleton=[[0, 1], [1, 2]]
     )
