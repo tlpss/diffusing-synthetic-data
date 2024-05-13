@@ -12,7 +12,7 @@ from tqdm import tqdm
 from dsd import DATA_DIR
 from dsd.rendering.keypoint_annotator import annotate_keypoints
 from dsd.rendering.renderer import CyclesRendererConfig, render_scene
-
+import dataclasses
 
 def sample_point_in_capped_ball(max_radius, min_radius, min_height):
     max_iterations = 20
@@ -67,25 +67,7 @@ def create_camera():
     return camera
 
 
-if __name__ == "__main__":  # noqa
-    # XY_SCALE_RANGE = (0.8, 1.2)
-    # Z_SCALE_RANGE = (0.8, 1.2)
-
-    # fix the random seeds to make reproducible renders
-    np.random.seed(2024)
-    random.seed(2024)
-
-    n_renders = 25
-
-    # input dir
-    mugs_path = DATA_DIR / "meshes/objaverse-mugs-filtered/"
-
-    # output dir
-    output_dir = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-    # delete default cube
-    bpy.ops.object.delete(use_global=False)
-
+def add_lighting():
     # delete default light
     bpy.ops.object.select_by_type(type="LIGHT")
     bpy.ops.object.delete(use_global=False)
@@ -100,6 +82,37 @@ if __name__ == "__main__":  # noqa
     light = bpy.context.selected_objects[0]
     light.data.energy = 100
     light.data.size = 2
+
+
+# need to make configurable:
+ # - the camera extrinsics (radius of the sphere)
+ # - mesh directory
+ # - target directory
+ # - to render the keypoints or not.
+    # - number of renders per mesh
+
+
+@dataclasses.dataclass
+class RenderConfig:
+    mesh_directory: str 
+    output_directory: str
+    table_scale_range: tuple = (0.2, 0.8)
+    render_keypoints: bool = False
+    n_renders_per_mesh: int = 25
+
+
+def render_scenes(config: RenderConfig):
+    # XY_SCALE_RANGE = (0.8, 1.2)
+    # Z_SCALE_RANGE = (0.8, 1.2)
+
+    # fix the random seeds to make reproducible renders
+    np.random.seed(2024)
+    random.seed(2024)
+    # delete default cube
+    bpy.ops.object.delete(use_global=False)
+
+    add_lighting()
+
 
     # add a plane with size 2x2
     # using a cube with scale 2x2x0.01
@@ -116,33 +129,33 @@ if __name__ == "__main__":  # noqa
         roughness=1.0,
     )
 
-    meshes = list(mugs_path.glob("**/*.obj"))
-    mug_object = None
+    meshes = list(config.mesh_directory.glob("**/*.obj"))
+    mesh_object = None
     for mesh in tqdm(meshes):
 
-        if mug_object is not None:
-            bpy.data.objects.remove(mug_object, do_unlink=True)
+        if mesh_object is not None:
+            bpy.data.objects.remove(mesh_object, do_unlink=True)
 
         bpy.ops.import_scene.obj(filepath=str(mesh), axis_forward="Y", axis_up="Z")
-        mug_object = bpy.context.selected_objects[0]
+        mesh_object = bpy.context.selected_objects[0]
         # make the mug white
         add_material(
-            mug_object,
+            mesh_object,
             [
                 1.0,
             ]
             * 3,
             roughness=1.0,
         )
-        mug_object.pass_index = 1  # for segmentation hacky rendering
+        mesh_object.pass_index = 1  # for segmentation hacky rendering
 
         # shade smooth
         bpy.ops.object.shade_smooth()
 
-        mesh_output_dir = output_dir / mesh.stem
+        mesh_output_dir = config.output_directory / mesh.stem
         mesh_output_dir.mkdir(parents=True, exist_ok=True)
 
-        for i in range(n_renders):
+        for i in range(config.n_renders_per_mesh):
 
             # scale the mug to a random size
             # xy_scale = np.random.uniform(*XY_SCALE_RANGE)
@@ -150,8 +163,8 @@ if __name__ == "__main__":  # noqa
             # scale = (xy_scale, xy_scale, z_scale)
             # mug_object.scale = scale
 
-            table.scale[0] = np.random.uniform(0.2, 0.8)
-            table.scale[1] = np.random.uniform(0.2, 0.8)
+            table.scale[0] = np.random.uniform(*config.table_scale_range)
+            table.scale[1] = np.random.uniform(*config.table_scale_range)
 
             # apply scale to the object
             bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
@@ -207,17 +220,19 @@ if __name__ == "__main__":  # noqa
                 shutil.rmtree(mesh_output_dir / f"{i:03d}")
                 continue
 
+            ## save all data
+
             # save the pose of the mug in the camera frame
-            mug_pose = np.eye(4)
-            mug_pose[:3, 3] = mug_object.location
-            mug_pose[:3, :3] = mug_object.rotation_euler.to_matrix()
+            object_pose = np.eye(4)
+            object_pose[:3, 3] = mesh_object.location
+            object_pose[:3, :3] = mesh_object.rotation_euler.to_matrix()
 
             camera_pose = np.eye(4)
             camera_pose[:3, 3] = camera.location
             camera_pose[:3, :3] = camera.rotation_euler.to_matrix()
 
-            mug_in_camera_frame = np.linalg.inv(camera_pose) @ mug_pose
-            np.save(mesh_output_dir / f"{i:03d}" / "mug_pose_in_camera_frame.npy", mug_in_camera_frame)
+            mug_in_camera_frame = np.linalg.inv(camera_pose) @ object_pose
+            np.save(mesh_output_dir / f"{i:03d}" / "object_pose_in_camera_frame.npy", mug_in_camera_frame)
 
             # get the 2D keypoint
             keypoints_3D_dict = json.load(open(str(mesh).split(".")[0] + "_keypoints.json", "r"))
@@ -227,17 +242,33 @@ if __name__ == "__main__":  # noqa
 
             keypoints_2d = annotate_keypoints(keypoints_3D_dict, camera)
 
-            # # plot them on the image
-            # from PIL import Image, ImageDraw
-            # img = Image.open(mesh_output_dir / f"{i:03d}" / "rgb.png")
-            # draw = ImageDraw.Draw(img)
-            # for kp_name, (u, v, visibility) in keypoints_2d.items():
-            #     if visibility < 1.5:
-            #         draw.ellipse((u - 5, v - 5, u + 5, v + 5), fill=(100, 0, 0))
-            #     else:
-            #         draw.ellipse((u - 5, v - 5, u + 5, v + 5), fill=(255, 0, 0))
-            # img.save(mesh_output_dir / f"{i:03d}" / "annotated_rgb.png")
+            # plot them on the image
+            if config.render_keypoints:
+                from PIL import Image, ImageDraw
+                img = Image.open(mesh_output_dir / f"{i:03d}" / "rgb.png")
+                draw = ImageDraw.Draw(img)
+                for kp_name, (u, v, visibility) in keypoints_2d.items():
+                    if visibility < 1.5:
+                        draw.ellipse((u - 5, v - 5, u + 5, v + 5), fill=(100, 0, 0))
+                    else:
+                        draw.ellipse((u - 5, v - 5, u + 5, v + 5), fill=(255, 0, 0))
+                img.save(mesh_output_dir / f"{i:03d}" / "annotated_rgb.png")
 
             # save as json
             with open(mesh_output_dir / f"{i:03d}" / "keypoints.json", "w") as f:
                 json.dump(keypoints_2d, f)
+
+            # save the blend file
+            bpy.ops.wm.save_as_mainfile(filepath=mesh_output_dir / f"{i:03d}" / "scene.blend")
+
+
+if __name__ == "__main__":  # noqa
+    config = RenderConfig(  mesh_directory = DATA_DIR / "meshes/shoes/GSO-labeled/",
+                            output_directory = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                            render_keypoints=True,
+                            n_renders_per_mesh=1
+                           )
+
+
+    render_scenes(config)
+    
