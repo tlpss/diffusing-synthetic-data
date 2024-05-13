@@ -40,5 +40,5 @@ def apply_keypoints_to_mesh(mesh_object, keypoints):
 if __name__ == "__main__":
     from dsd import DATA_DIR
 
-    folder_path = DATA_DIR / "meshes" / "objaverse-mugs"
+    folder_path = DATA_DIR / "meshes" / "shoes" / "GSO-labeled"
     arrange_meshes_and_keypoints(folder_path)
