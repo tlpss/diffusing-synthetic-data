@@ -16,9 +16,9 @@ def arrange_meshes_and_keypoints(folder_path):
         obj = bpy.context.selected_objects[0]
         obj.location = (x_offset, 0, 0)
 
-        # keypoint_file = obj_file.replace(".obj", "_keypoints.json")
-        # keypoints = load_keypoints(keypoint_file)
-        # apply_keypoints_to_mesh(obj, keypoints)
+        keypoint_file = obj_file.replace(".obj", "_keypoints.json")
+        keypoints = load_keypoints(keypoint_file)
+        apply_keypoints_to_mesh(obj, keypoints)
 
         x_offset += grid_spacing
 
@@ -40,5 +40,5 @@ def apply_keypoints_to_mesh(mesh_object, keypoints):
 if __name__ == "__main__":
     from dsd import DATA_DIR
 
-    folder_path = DATA_DIR / "meshes" / "shoes" / "GSO-shoes"
+    folder_path = DATA_DIR / "meshes" / "shoes" / "GSO-labeled"
     arrange_meshes_and_keypoints(folder_path)
