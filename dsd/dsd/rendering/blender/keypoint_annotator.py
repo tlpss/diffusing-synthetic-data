@@ -3,7 +3,7 @@ import numpy as np
 from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
 
-from dsd.rendering.visibility_check import is_point_in_camera_frustum, is_point_occluded_for_scene_camera
+from dsd.rendering.blender.visibility_check import is_point_in_camera_frustum, is_point_occluded_for_scene_camera
 
 
 def annotate_keypoints(keypoints_3D_dict: dict, camera: bpy.types.Object) -> dict:

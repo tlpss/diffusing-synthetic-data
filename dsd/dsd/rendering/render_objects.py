@@ -10,9 +10,10 @@ from PIL import Image
 from tqdm import tqdm
 
 from dsd import DATA_DIR
-from dsd.rendering.keypoint_annotator import annotate_keypoints
-from dsd.rendering.renderer import CyclesRendererConfig, render_scene
+from dsd.rendering.blender.keypoint_annotator import annotate_keypoints
+from dsd.rendering.blender.renderer import CyclesRendererConfig, render_scene
 import dataclasses
+
 
 def sample_point_in_capped_ball(max_radius, min_radius, min_height):
     max_iterations = 20
@@ -99,12 +100,12 @@ class RenderConfig:
     table_scale_range: tuple = (0.2, 0.8)
     render_keypoints: bool = False
     n_renders_per_mesh: int = 25
+    camera_minimum_distance: float = 0.3
+    camera_maximum_distance: float = 0.7
+    camera_minimum_height: float = 0.05
 
 
 def render_scenes(config: RenderConfig):
-    # XY_SCALE_RANGE = (0.8, 1.2)
-    # Z_SCALE_RANGE = (0.8, 1.2)
-
     # fix the random seeds to make reproducible renders
     np.random.seed(2024)
     random.seed(2024)
@@ -138,7 +139,10 @@ def render_scenes(config: RenderConfig):
 
         bpy.ops.import_scene.obj(filepath=str(mesh), axis_forward="Y", axis_up="Z")
         mesh_object = bpy.context.selected_objects[0]
-        # make the mug white
+        # rename the object
+        mesh_object.name = "object"
+        
+        # make the object white
         add_material(
             mesh_object,
             [
@@ -157,12 +161,7 @@ def render_scenes(config: RenderConfig):
 
         for i in range(config.n_renders_per_mesh):
 
-            # scale the mug to a random size
-            # xy_scale = np.random.uniform(*XY_SCALE_RANGE)
-            # z_scale = np.random.uniform(*Z_SCALE_RANGE)
-            # scale = (xy_scale, xy_scale, z_scale)
-            # mug_object.scale = scale
-
+      
             table.scale[0] = np.random.uniform(*config.table_scale_range)
             table.scale[1] = np.random.uniform(*config.table_scale_range)
 
@@ -176,7 +175,7 @@ def render_scenes(config: RenderConfig):
 
                 # set the camera to a random position
                 camera = create_camera()
-                camera_position = sample_point_in_capped_ball(0.7, 0.3, 0.05)
+                camera_position = sample_point_in_capped_ball(config.camera_maximum_distance, config.camera_minimum_distance, config.camera_minimum_height)
 
                 # randomize the looking at position around the mug.
                 looking_at_position = np.random.uniform(-0.1, 0.1, 3)
@@ -196,7 +195,7 @@ def render_scenes(config: RenderConfig):
                 )
                 # check if the segmentation mask does not border on the image edges
                 # if this is not the case, the object is entirely within view
-
+                from PIL import Image
                 segmentation = Image.open(str(mesh_output_dir / f"{i:03d}" / "segmentation.png"))
                 # segmentation.save(str(mesh_output_dir / f"{i:03d}" / f"{j}_segmentation.png"))
                 segmentation = (np.array(segmentation) > 0) * 1.0
@@ -236,10 +235,6 @@ def render_scenes(config: RenderConfig):
 
             # get the 2D keypoint
             keypoints_3D_dict = json.load(open(str(mesh).split(".")[0] + "_keypoints.json", "r"))
-            # scale the keypoints
-            # for key, value in keypoints_3D_dict.items():
-            #     keypoints_3D_dict[key] = np.array(value) * scale
-
             keypoints_2d = annotate_keypoints(keypoints_3D_dict, camera)
 
             # plot them on the image
@@ -259,14 +254,25 @@ def render_scenes(config: RenderConfig):
                 json.dump(keypoints_2d, f)
 
             # save the blend file
-            bpy.ops.wm.save_as_mainfile(filepath=mesh_output_dir / f"{i:03d}" / "scene.blend")
+            bpy.ops.wm.save_as_mainfile(filepath=str(mesh_output_dir / f"{i:03d}" / "scene.blend"))
 
 
 if __name__ == "__main__":  # noqa
+    np.random.seed(2024)
+    random.seed(2024)
+    # config = RenderConfig(  mesh_directory = DATA_DIR / "meshes/mugs/",
+    #                         output_directory = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+    #                         render_keypoints=False,
+    #                         n_renders_per_mesh=25
+    #                        )    
     config = RenderConfig(  mesh_directory = DATA_DIR / "meshes/shoes/GSO-labeled/",
-                            output_directory = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+                            output_directory = DATA_DIR / "renders" / "shoes" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
                             render_keypoints=True,
-                            n_renders_per_mesh=1
+                            n_renders_per_mesh=12,
+                            table_scale_range=(0.3,0.8),
+                            camera_minimum_distance=0.4,
+                            camera_maximum_distance=0.9,
+                            camera_minimum_height=0.2
                            )
 
 
