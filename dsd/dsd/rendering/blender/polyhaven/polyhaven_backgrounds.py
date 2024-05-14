@@ -1,8 +1,9 @@
 """ random HDRI backgrounds in python
  code copied from https://github.com/tlpss/synthetic-cloth-data/blob/main/synthetic-cloth-data/synthetic_cloth_data/synthetic_images/scene_builder/background.py"""
 
-import json 
 import dataclasses
+import json
+
 from dsd.rendering.blender.polyhaven import POLYHAVEN_ASSETS_SNAPSHOT_PATH
 
 
@@ -14,13 +15,12 @@ class PolyhavenHDRIConfig:
     asset_list = [asset for asset in asset_list if asset["type"] == "worlds"]
 
 
-
 import dataclasses
-from typing import List
 
 import airo_blender as ab
 import bpy
 import numpy as np
+
 
 def add_polyhaven_hdri_background_to_scene(config: PolyhavenHDRIConfig):
     """adds a polyhaven HDRI background to the scene."""

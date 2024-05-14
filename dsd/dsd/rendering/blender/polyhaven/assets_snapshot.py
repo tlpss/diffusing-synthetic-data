@@ -9,7 +9,9 @@ Make sure to add (and create if required) the asset files first
 import json
 
 import airo_blender as ab
+
 from dsd.rendering.blender.polyhaven import POLYHAVEN_ASSETS_SNAPSHOT_PATH
+
 
 def create_asset_json(assets, snapshot_path):
     asset_snapshot = {"assets": assets}

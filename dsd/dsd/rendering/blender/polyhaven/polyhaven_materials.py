@@ -1,16 +1,18 @@
 """code to add random polyhaven textures to blender objects.
-copied from https://github.com/tlpss/synthetic-cloth-data/tree/main 
+copied from https://github.com/tlpss/synthetic-cloth-data/tree/main
 """
 from __future__ import annotations
 
-import numpy as np 
-import bpy
-import airo_blender as ab
 import dataclasses
-import json 
-import cv2 
+import json
+
+import airo_blender as ab
+import bpy
+import cv2
+import numpy as np
 
 from dsd.rendering.blender.polyhaven import POLYHAVEN_ASSETS_SNAPSHOT_PATH
+
 
 @dataclasses.dataclass
 class PolyhavenMaterials:
@@ -20,7 +22,6 @@ class PolyhavenMaterials:
     asset_list = [asset for asset in asset_list if asset["type"] == "materials"]
 
     polyhaven_material_probability = 0.999
-
 
 
 def sample_hsv_color():
@@ -87,7 +88,7 @@ def add_texture_to_object(object: bpy.types.Object) -> bpy.types.Object:
 
         # remove existing materials
         object.data.materials.clear()
-        
+
         object.data.materials.append(material)
     else:
         base_hsv = sample_hsv_color()
@@ -100,10 +101,9 @@ def add_texture_to_object(object: bpy.types.Object) -> bpy.types.Object:
 if __name__ == "__main__":
 
     PolyhavenMaterials.assets_json_path = "assets.json"
-    # select the default cube 
+    # select the default cube
     bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0, 1))
     new_cube = bpy.context.object
-
 
     add_texture_to_object(new_cube)
     print("done")
