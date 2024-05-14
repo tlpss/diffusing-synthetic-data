@@ -10,7 +10,7 @@ import dataclasses
 import json 
 import cv2 
 
-from dsd.rendering.polyhaven import POLYHAVEN_ASSETS_SNAPSHOT_PATH
+from dsd.rendering.blender.polyhaven import POLYHAVEN_ASSETS_SNAPSHOT_PATH
 
 @dataclasses.dataclass
 class PolyhavenMaterials:
@@ -41,13 +41,12 @@ def hsv_to_rgb(hsv: np.ndarray):
     return rgb[0][0]
 
 
-def add_textured_surface_to_scene(object: bpy.types.Object) -> bpy.types.Object:
+def add_texture_to_object(object: bpy.types.Object) -> bpy.types.Object:
     if np.random.rand() < PolyhavenMaterials.polyhaven_material_probability and len(PolyhavenMaterials.asset_list) > 0:
         print("polyhaven material")
         material_dict = np.random.choice(PolyhavenMaterials.asset_list)
         material = ab.load_asset(**material_dict)
         assert isinstance(material, bpy.types.Material)
-        print(material)
 
         # add a color mix node before the principled BSDF color
         # to randomize the base color hue
@@ -85,9 +84,12 @@ def add_textured_surface_to_scene(object: bpy.types.Object) -> bpy.types.Object:
         # disable actual mesh displacements as they change the geometry of the surface
         # and are not used in collision checking, which can cause the cloth to become 'invisible' in renders
         material.cycles.displacement_method = "BUMP"
+
+        # remove existing materials
+        object.data.materials.clear()
+        
         object.data.materials.append(material)
     else:
-        print("base color")
         base_hsv = sample_hsv_color()
         base_rgb = hsv_to_rgb(base_hsv)
         ab.add_material(object, color=base_rgb)
@@ -103,5 +105,5 @@ if __name__ == "__main__":
     new_cube = bpy.context.object
 
 
-    add_textured_surface_to_scene(new_cube)
+    add_texture_to_object(new_cube)
     print("done")
