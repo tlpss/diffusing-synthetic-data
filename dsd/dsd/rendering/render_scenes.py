@@ -127,7 +127,6 @@ def render_scenes(config: RenderConfig):  # noqa C901
         * 3,
         roughness=1.0,
     )
-
     meshes = list(config.mesh_directory.glob("**/*.obj"))
     mesh_object = None
     for mesh in tqdm(meshes):
@@ -139,6 +138,28 @@ def render_scenes(config: RenderConfig):  # noqa C901
         mesh_object = bpy.context.selected_objects[0]
         # rename the object
         mesh_object.name = "object"
+
+        # load the 3D keypoints
+        keypoints_3D_dict = json.load(open(str(mesh).split(".")[0] + "_keypoints.json", "r"))
+
+        # if tshirt mesh -> solidify the mesh a bit to give it thickness and make it visible on the depth map
+        if "tshirt" in str(config.mesh_directory).lower():
+            # select the mesh object
+            TSHIRT_THICKNESS = 0.02
+            bpy.context.view_layer.objects.active = mesh_object
+
+            bpy.ops.object.modifier_add(type="SOLIDIFY")
+            bpy.context.object.modifiers["Solidify"].thickness = TSHIRT_THICKNESS
+            bpy.context.object.modifiers["Solidify"].offset = 0.0
+            bpy.ops.object.modifier_apply(modifier="Solidify")
+
+            # move the object up a bit
+            mesh_object.location[2] += TSHIRT_THICKNESS / 2
+            bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+
+            # also move up the keypoints in that case
+            for kp_name, kp in keypoints_3D_dict.items():
+                keypoints_3D_dict[kp_name][2] += TSHIRT_THICKNESS / 2
 
         # make the object white
         add_material(
@@ -234,10 +255,16 @@ def render_scenes(config: RenderConfig):  # noqa C901
             np.save(mesh_output_dir / f"{i:03d}" / "object_pose_in_camera_frame.npy", mug_in_camera_frame)
 
             # get the 2D keypoint
-            keypoints_3D_dict = json.load(open(str(mesh).split(".")[0] + "_keypoints.json", "r"))
+
+            # if tshirt mesh, undo the solidify modifier before determining the visibility of the 2D keypoints
+            if "tshirt" in str(config.mesh_directory).lower():
+                # select the mesh object
+                bpy.context.view_layer.objects.active = mesh_object
+                bpy.ops.object.modifier_remove(modifier="Solidify")
+
             keypoints_2d = annotate_keypoints(keypoints_3D_dict, camera)
 
-            # plot them on the image
+            # plot the keypoints on the image
             if config.render_keypoints:
                 from PIL import Image, ImageDraw
 
@@ -261,20 +288,37 @@ def render_scenes(config: RenderConfig):  # noqa C901
 if __name__ == "__main__":  # noqa
     np.random.seed(2024)
     random.seed(2024)
-    # config = RenderConfig(  mesh_directory = DATA_DIR / "meshes/mugs/",
-    #                         output_directory = DATA_DIR / "renders" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+
+    # # mugs
+    # config = RenderConfig(  mesh_directory = DATA_DIR / "meshes/mugs/objaverse-mugs-filtered/",
+    #                         output_directory = DATA_DIR / "scenes" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
     #                         render_keypoints=False,
     #                         n_renders_per_mesh=25
     #                        )
+
+    # # shoes
+
     config = RenderConfig(
         mesh_directory=DATA_DIR / "meshes/shoes/GSO-labeled/",
-        output_directory=DATA_DIR / "renders" / "shoes" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        output_directory=DATA_DIR / "scenes" / "shoes" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         render_keypoints=True,
         n_renders_per_mesh=12,
-        table_scale_range=(0.3, 0.8),
+        table_scale_range=(0.3, 1.0),
         camera_minimum_distance=0.4,
         camera_maximum_distance=0.9,
         camera_minimum_height=0.2,
     )
 
+    # tshirts
+
+    # config = RenderConfig(
+    #     mesh_directory=DATA_DIR / "meshes/tshirts/processed_meshes/",
+    #     output_directory=DATA_DIR / "scenes" / "tshirts" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+    #     render_keypoints=True,
+    #     n_renders_per_mesh=10,
+    #     table_scale_range=(0.7, 1.3),
+    #     camera_minimum_distance=1.0,
+    #     camera_maximum_distance=1.8, # matches the max 1m distance of a zed camera with FOV 67 degrees
+    #     camera_minimum_height=0.5,
+    # )
     render_scenes(config)
