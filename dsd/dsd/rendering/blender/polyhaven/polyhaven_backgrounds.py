@@ -27,7 +27,6 @@ def add_polyhaven_hdri_background_to_scene(config: PolyhavenHDRIConfig):
     hdri_dict = np.random.choice(config.asset_list)
     world = ab.load_asset(**hdri_dict)
     bpy.context.scene.world = world
-    breakpoint()
     # set Polyhaven HDRI resolution to 4k
     # requires creating manual context override, although this is not documented ofc.
     # override = bpy.context.copy()

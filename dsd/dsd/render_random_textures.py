@@ -59,11 +59,18 @@ def generate_random_texture_renders(source_directory, target_directory, num_rend
             # render the scene
             render_scene(
                 CyclesRendererConfig(render_depth=False, render_segmentation=False, render_rgb=True),
-                str(image_target_dir / f"render_{i}"),
+                str(image_target_dir / "random_textures"),
+            )
+            # rename the image
+            shutil.move(
+                image_target_dir / "random_textures" / "rgb.png",
+                image_target_dir / "random_textures" / f"rgb_{i}.png",
             )
 
 
 if __name__ == "__main__":
+
+    pass
 
     generate_random_texture_renders(
         source_directory=pathlib.Path(
