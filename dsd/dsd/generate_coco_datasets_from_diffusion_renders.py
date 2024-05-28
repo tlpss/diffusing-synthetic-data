@@ -15,8 +15,6 @@ from airo_dataset_tools.data_parsers.coco import (
 from airo_dataset_tools.segmentation_mask_converter import BinarySegmentationMask
 from PIL import Image
 
-from dsd import DATA_DIR
-
 
 def get_images_per_renderer(render_path: pathlib.Path):
     # get all files in the folder
@@ -131,41 +129,37 @@ def generate_coco_datasets(target_coco_path, render_path: pathlib.Path, coco_cat
             json.dump(coco_dataset.model_dump(), f)
 
 
+mug_category = CocoKeypointCategory(  # noqa
+    id=0, name="mug", supercategory="mug", keypoints=["bottom", "handle", "top"], skeleton=[[0, 1], [1, 2]]
+)
+
+shoe_category = CocoKeypointCategory(  # noqa
+    id=0, name="shoe", supercategory="shoe", keypoints=["nose", "heel", "top"], skeleton=[[0, 1], [1, 2]]
+)
+
+tshirt_category = CocoKeypointCategory(  # noqa
+    id=0,
+    name="tshirt",
+    supercategory="tshirt",
+    keypoints=[
+        "shoulder_left",
+        "neck_left",
+        "neck_right",
+        "shoulder_right",
+        "sleeve_right_top",
+        "sleeve_right_bottom",
+        "armpit_right",
+        "waist_right",
+        "waist_left",
+        "armpit_left",
+        "sleeve_left_bottom",
+        "sleeve_left_top",
+    ],
+    skeleton=[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]],
+)
+
+
 if __name__ == "__main__":
-
-    render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "cvpr" / "large-run-2-stage"
-
-    mug_category = CocoKeypointCategory(
-        id=0, name="mug", supercategory="mug", keypoints=["bottom", "handle", "top"], skeleton=[[0, 1], [1, 2]]
-    )
-
-    shoe_category = CocoKeypointCategory(
-        id=0, name="shoe", supercategory="shoe", keypoints=["nose", "heel", "top"], skeleton=[[0, 1], [1, 2]]
-    )
-
-    tshirt_category = CocoKeypointCategory(
-        id=0,
-        name="tshirt",
-        supercategory="tshirt",
-        keypoints=[
-            "shoulder_left",
-            "neck_left",
-            "neck_right",
-            "shoulder_right",
-            "sleeve_right_top",
-            "sleeve_right_bottom",
-            "armpit_right",
-            "waist_right",
-            "waist_left",
-            "armpit_left",
-            "sleeve_left_bottom",
-            "sleeve_left_top",
-        ],
-        skeleton=[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]],
-    )
-
-    # render_base_path = DATA_DIR / "diffusion_renders"
-    # generate_coco_datasets(render_base_path ,render_dataset, mug_category)
 
     import click
 
