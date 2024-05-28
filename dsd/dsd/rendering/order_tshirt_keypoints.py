@@ -35,8 +35,8 @@ def order_tshirt_keypoints(keypoints_2D: np.ndarray, bbox: tuple):
 
     waist_left_idx = TSHIRT_KEYPOINTS.index("waist_left")
     waist_right_idx = TSHIRT_KEYPOINTS.index("waist_right")
-    waist_left_2D = keypoints_2D[waist_left_idx]
-    waist_right_2D = keypoints_2D[waist_right_idx]
+    waist_left_2D = keypoints_2D[waist_left_idx][:2]
+    waist_right_2D = keypoints_2D[waist_right_idx][:2]
 
     distance_waist_left = np.linalg.norm(np.array(waist_left_2D) - np.array(bottom_left_bbox_corner))
     distance_waist_right = np.linalg.norm(np.array(waist_right_2D) - np.array(bottom_left_bbox_corner))
@@ -45,7 +45,9 @@ def order_tshirt_keypoints(keypoints_2D: np.ndarray, bbox: tuple):
         should_tshirt_be_flipped = True
     else:
         should_tshirt_be_flipped = False
-    # print(f"should_tshirt_be_flipped: {should_tshirt_be_flipped}")
+
+    if should_tshirt_be_flipped:
+        print(f"should_tshirt_be_flipped: {should_tshirt_be_flipped}")
     if should_tshirt_be_flipped:
         for idx, keypoint in enumerate(TSHIRT_KEYPOINTS):
             if "left" in keypoint:
