@@ -2,7 +2,7 @@
 """
 from paths import DATA_DIR, MUG_SCENES_DIR, SHOE_SCENES_DIR, TSHIRT_SCENES_DIR
 
-from dsd.diffusion_rendering import ControlNetFromDepthRenderer
+from dsd.diffusion_rendering import ControlNetTXTFromDepthRenderer
 from dsd.generate_coco_datasets_from_diffusion_renders import (
     generate_coco_datasets,
     mug_category,
@@ -11,7 +11,8 @@ from dsd.generate_coco_datasets_from_diffusion_renders import (
 )
 from dsd.generate_diffusion_renders import generate_diffusion_renders
 
-diffusion_renderer = (ControlNetFromDepthRenderer, {"num_images_per_prompt": 2})
+print("test")
+diffusion_renderer = (ControlNetTXTFromDepthRenderer, {"num_images_per_prompt": 2})
 
 
 def generate_renders(category):

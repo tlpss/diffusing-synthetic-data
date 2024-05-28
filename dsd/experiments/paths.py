@@ -5,7 +5,7 @@ from dsd import DATA_DIR
 # scenes
 SHOE_SCENES_DIR = DATA_DIR / "scenes" / "shoes" / "gso-filtered-2500"
 MUG_SCENES_DIR = DATA_DIR / "scenes" / "mugs" / "objaverse-filtered-2500-ral"
-TSHIRT_SCENES_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500"
+TSHIRT_SCENES_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-ordered"
 
 # real train  datasets
 REAL_DATA_DIR = DATA_DIR / "real"
@@ -29,6 +29,10 @@ RANDOM_TEXTURE_BASELINE_DIR = DATA_DIR / "random_textures"
 SHOE_RANDOM_TEXTURE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "shoes" / "001"
 MUG_RANDOM_TEXTURE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "mugs" / "001"
 TSHIRT_RANDOM_TEXTURE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "tshirts" / "001"
+
+RANDOM_TEXTURE_BASELINE_SHOE_DATASET = DATA_DIR / "coco" / "shoes" / "random_textures" / "annotations.json"
+RANDOM_TEXTURE_BASELINE_MUG_DATASET = DATA_DIR / "coco" / "mugs" / "random_textures" / "annotations.json"
+RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET = DATA_DIR / "coco" / "tshirts" / "random_textures" / "annotations.json"
 
 
 if __name__ == "__main__":
