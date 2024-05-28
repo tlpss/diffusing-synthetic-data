@@ -36,7 +36,7 @@ def get_images_per_renderer(render_path: pathlib.Path):
     return renderer_to_images_dict
 
 
-def get_annotations_for_rendered_image(image_path):
+def get_annotations_for_rendered_image(image_path, coco_category):
     original_dir_path = image_path.parents[1] / "original"
     mask_path = original_dir_path / "segmentation.png"
     keypoints_path = original_dir_path / "keypoints.json"
@@ -48,9 +48,12 @@ def get_annotations_for_rendered_image(image_path):
     keypoint_dict = json.load(open(keypoints_path))
     keypoint_list = []
     n_keypoints = 0
-    for name in ["bottom", "handle", "top"]:
-        keypoint_list.extend(keypoint_dict[name])
-        n_keypoints += 1 * (keypoint_dict[name][2] > 0.5)
+
+    for name in coco_category.keypoints:
+        keypoint = keypoint_dict[name]
+        keypoint_list.extend(keypoint)
+        n_keypoints += 1 * (keypoint[2] > 0.5)
+
     annotation = CocoKeypointAnnotation(
         id=0,
         image_id=0,
@@ -72,7 +75,7 @@ def create_coco_dataset(images, coco_category):
     for idx, image_path in enumerate(images):
         image = Image.open(image_path)
         coco_image = CocoImage(id=idx, width=image.width, height=image.height, file_name=str(image_path))
-        annotation = get_annotations_for_rendered_image(image_path)
+        annotation = get_annotations_for_rendered_image(image_path, coco_category)
         annotation.image_id = idx
         annotation.id = idx
         coco_images.append(coco_image)
@@ -113,18 +116,12 @@ def copy_images_and_make_paths_relative(
     return coco_dataset
 
 
-def generate_coco_datasets(render_path: pathlib.Path, coco_category: CocoKeypointCategory):
+def generate_coco_datasets(target_coco_path, render_path: pathlib.Path, coco_category: CocoKeypointCategory):
     renderer_to_images_dict = get_images_per_renderer(render_path)
     print("gathered index")
     for renderer, images in renderer_to_images_dict.items():
         coco_dataset = create_coco_dataset(images, coco_category)
-        coco_dataset_dir = (
-            DATA_DIR
-            / "diffusion_renders"
-            / "coco"
-            / render_path.relative_to(DATA_DIR / "diffusion_renders")
-            / renderer
-        )
+        coco_dataset_dir = target_coco_path / renderer
         coco_dataset_dir.mkdir(parents=True, exist_ok=True)
 
         print("copying images")
@@ -137,7 +134,50 @@ def generate_coco_datasets(render_path: pathlib.Path, coco_category: CocoKeypoin
 if __name__ == "__main__":
 
     render_dataset = DATA_DIR / "diffusion_renders" / "mugs" / "cvpr" / "large-run-2-stage"
-    category = CocoKeypointCategory(
+
+    mug_category = CocoKeypointCategory(
         id=0, name="mug", supercategory="mug", keypoints=["bottom", "handle", "top"], skeleton=[[0, 1], [1, 2]]
     )
-    generate_coco_datasets(render_dataset, category)
+
+    shoe_category = CocoKeypointCategory(
+        id=0, name="shoe", supercategory="shoe", keypoints=["nose", "heel", "top"], skeleton=[[0, 1], [1, 2]]
+    )
+
+    tshirt_category = CocoKeypointCategory(
+        id=0,
+        name="tshirt",
+        supercategory="tshirt",
+        keypoints=[
+            "shoulder_left",
+            "neck_left",
+            "neck_right",
+            "shoulder_right",
+            "sleeve_right_top",
+            "sleeve_right_bottom",
+            "armpit_right",
+            "waist_right",
+            "waist_left",
+            "armpit_left",
+            "sleeve_left_bottom",
+            "sleeve_left_top",
+        ],
+        skeleton=[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11]],
+    )
+
+    # render_base_path = DATA_DIR / "diffusion_renders"
+    # generate_coco_datasets(render_base_path ,render_dataset, mug_category)
+
+    import click
+
+    @click.command()
+    @click.option("--render_base_path", type=str, required=True)
+    @click.option("--render_path", type=str, required=True)
+    @click.option("--category", type=str, required=True)
+    def generate_coco_datasets_cli(render_base_path, render_path, category):
+        render_base_path = pathlib.Path(render_base_path)
+        render_path = pathlib.Path(render_path)
+        category = eval(category)
+
+        generate_coco_datasets(render_base_path, render_path, category)
+
+    generate_coco_datasets_cli()
