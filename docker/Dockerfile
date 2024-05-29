@@ -18,7 +18,7 @@ RUN apt-get update && \
 # # instal the dependencies
 #RUN pip install torch torchvision torchaudio
 RUN pip install diffusers transformers click tqdm controlnet_aux accelerate
-RUN pip install git+https://github.com/facebookresearch/segment-anything.git
+#RUN pip install git+https://github.com/facebookresearch/segment-anything.git
 
 # remove the opencv-python and install opencv-python-headless
 RUN pip uninstall opencv-python -y
@@ -26,12 +26,22 @@ RUN pip3 install opencv-python-headless
 
 
 # copy the code
+
+COPY airo-blender/airo-mono/airo-typing/ /airo-mono/airo-typing
+COPY airo-blender/airo-mono/airo-spatial-algebra/ /airo-mono/airo-spatial-algebra
+COPY airo-blender/airo-mono/airo-dataset-tools/ /airo-mono/airo-dataset-tools
+
+RUN pip install -e /airo-mono/airo-typing
+RUN pip install -e /airo-mono/airo-spatial-algebra
+RUN pip install -e /airo-mono/airo-dataset-tools
+
+# uninstall opencv and install opencv-headless
+RUN pip uninstall opencv-python -y
+RUN pip install opencv-python-headless==4.7.0.68
+
 COPY dsd/dsd /dsd/dsd
 COPY dsd/setup.py /dsd/setup.py
 COPY dsd/experiments /dsd/experiments
-COPY dsd/CVPRSyntaGen /dsd/CVPRSyntaGen
-
-# install the code
 RUN pip install -e /dsd
 
 # link the project mount
