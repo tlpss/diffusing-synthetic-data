@@ -1,12 +1,18 @@
 import subprocess
 
 COMMAND = "keypoint-detection train  --augment_train"
-from paths import (
+from paths import (  # noqa
+    RANDOM_TEXTURE_BASELINE_MUG_DATASET,
+    RANDOM_TEXTURE_BASELINE_SHOE_DATASET,
+    RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET,
     REAL_MUGS_TEST_DATASET,
+    REAL_MUGS_TRAIN_DATASET,
     REAL_MUGS_VAL_DATASET,
     REAL_SHOES_TEST_DATASET,
+    REAL_SHOES_TRAIN_DATASET,
     REAL_SHOES_VAL_DATASET,
     REAL_TSHIRTS_TEST_DATASET,
+    REAL_TSHIRTS_TRAIN_DATASET,
     REAL_TSHIRTS_VAL_DATASET,
 )
 
@@ -64,7 +70,6 @@ def _create_command(arg_dict):
 
 
 def train_on_real():
-    from paths import REAL_MUGS_TRAIN_DATASET, REAL_SHOES_TRAIN_DATASET, REAL_TSHIRTS_TRAIN_DATASET
 
     epochs = 100
 
@@ -97,5 +102,36 @@ def train_on_real():
     subprocess.run(command, shell=True)
 
 
+def train_on_random_textures():
+
+    epochs = 30
+
+    # mugs
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-random-textures"
+    mug_dict["json_dataset_path"] = str(RANDOM_TEXTURE_BASELINE_MUG_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    # # shoes
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-random-textures"
+    shoe_dict["json_dataset_path"] = str(RANDOM_TEXTURE_BASELINE_SHOE_DATASET)
+
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    # tshirts
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-random-textures"
+    tshirt_dict["json_dataset_path"] = str(RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+
 if __name__ == "__main__":
-    train_on_real()
+    # train_on_real()
+    train_on_random_textures()

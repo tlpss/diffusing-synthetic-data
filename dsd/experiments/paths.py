@@ -34,6 +34,40 @@ RANDOM_TEXTURE_BASELINE_SHOE_DATASET = DATA_DIR / "coco" / "shoes" / "random_tex
 RANDOM_TEXTURE_BASELINE_MUG_DATASET = DATA_DIR / "coco" / "mugs" / "random_textures" / "annotations.json"
 RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET = DATA_DIR / "coco" / "tshirts" / "random_textures" / "annotations.json"
 
+### DIFFUSION RENDERS
+
+# prompt experiments
+PROMPTS_CLASSNAME_SHOE_DATASET = (
+    DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "01-prompt-classname" / "annotations.json"
+)
+PROMPTS_CLASSNAME_MUG_DATASET = (
+    DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "01-prompt-classname" / "annotations.json"
+)
+PROMPTS_CLASSNAME_TSHIRT_DATASET = (
+    DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "01-prompt-classname" / "annotations.json"
+)
+
+PROMPTS_GEMINI_SHOE_DATASET = (
+    DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "02-gemini-prompts" / "annotations.json"
+)
+PROMPTS_GEMINI_MUG_DATASET = (
+    DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "02-gemini-prompts" / "annotations.json"
+)
+PROMPTS_GEMINI_TSHIRT_DATASET = (
+    DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "02-gemini-prompts" / "annotations.json"
+)
+
+PROMPTS_BLIP_SHOE_DATASET = DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "03-blip-captions" / "annotations.json"
+PROMPTS_BLIP_MUG_DATASET = DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "03-blip-captions" / "annotations.json"
+PROMPTS_BLIP_TSHIRT_DATASET = (
+    DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "03-blip-captions" / "annotations.json"
+)
+
+# model experiments
+
+
+# two-stage experiment
+
 
 if __name__ == "__main__":
     dataset_dict = {

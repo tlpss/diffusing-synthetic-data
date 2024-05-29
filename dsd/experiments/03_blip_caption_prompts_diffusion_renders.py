@@ -21,6 +21,11 @@ def _convert_blip_captions_to_prompts(caption_file_path):
     prompts = []
     for caption_pair in captions.values():
         prompts.extend(caption_pair)
+
+    # remove "/" from prompts
+    prompts = [prompt.replace("/", " ") for prompt in prompts]
+
+    print("removing / from prompts")
     return prompts
 
 

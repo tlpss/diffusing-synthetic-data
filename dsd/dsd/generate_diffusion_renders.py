@@ -34,15 +34,15 @@ class ImageSaver(Thread):
 
                 img = Image.fromarray(image)
                 img.save(filename)
-
             except queue.Empty:
                 # wait for 10s if the queue is empty
-                time.sleep(120)
+                time.sleep(10)
                 # if the queue is still empty, break the loop
                 if self.image_queue.empty():
                     break
 
         # Signal completion
+        print("Image queue is empty, quiting")
         self.image_queue.task_done()
 
 
@@ -85,8 +85,13 @@ def generate_diffusion_renders(
                 renderer_image_target_dir.mkdir(parents=True, exist_ok=True)
                 output_images = renderer(prompt, input_images)
                 for i, image in enumerate(output_images):
-                    image.save(renderer_image_target_dir / f"{prompt}_{i}.png")
-                    # image_saver.image_queue.put((np.array(image), renderer_image_target_dir / f"{prompt}_{i}.png"))
+
+                    # path length is limited to avoid Filename too long error
+                    length_limited_prompt = prompt[:50] + "...." if len(prompt) > 100 else prompt
+
+                    # store a s jpg
+                    image.save(renderer_image_target_dir / f"{length_limited_prompt}_{i}.jpg", quality=95)
+                    # image_saver.image_queue.put((np.array(image), renderer_image_target_dir / f"{length_limited_prompt}_{i}.png"))
 
     image_saver.image_queue.join()  # Wait for the queue to be empty
 
