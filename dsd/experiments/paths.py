@@ -38,29 +38,87 @@ RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET = DATA_DIR / "coco" / "tshirts" / "random
 
 # prompt experiments
 PROMPTS_CLASSNAME_SHOE_DATASET = (
-    DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "01-prompt-classname" / "annotations.json"
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "01-prompt-classname"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
 )
 PROMPTS_CLASSNAME_MUG_DATASET = (
-    DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "01-prompt-classname" / "annotations.json"
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "01-prompt-classname"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
 )
 PROMPTS_CLASSNAME_TSHIRT_DATASET = (
-    DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "01-prompt-classname" / "annotations.json"
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "01-prompt-classname"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
 )
 
 PROMPTS_GEMINI_SHOE_DATASET = (
-    DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "02-gemini-prompts" / "annotations.json"
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "02-gemini-prompts"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
 )
 PROMPTS_GEMINI_MUG_DATASET = (
-    DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "02-gemini-prompts" / "annotations.json"
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "02-gemini-prompts"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
 )
 PROMPTS_GEMINI_TSHIRT_DATASET = (
-    DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "02-gemini-prompts" / "annotations.json"
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "02-gemini-prompts"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
 )
 
-PROMPTS_BLIP_SHOE_DATASET = DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "03-blip-captions" / "annotations.json"
-PROMPTS_BLIP_MUG_DATASET = DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "03-blip-captions" / "annotations.json"
+PROMPTS_BLIP_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "03-blip-captions"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+PROMPTS_BLIP_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "03-blip-captions"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
 PROMPTS_BLIP_TSHIRT_DATASET = (
-    DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "03-blip-captions" / "annotations.json"
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "03-blip-captions"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
 )
 
 # model experiments
@@ -68,31 +126,39 @@ PROMPTS_BLIP_TSHIRT_DATASET = (
 
 # two-stage experiment
 
+dataset_paths = {k: str(v) for k, v in locals().items() if k.endswith("_DATASET")}
 
 if __name__ == "__main__":
-    dataset_dict = {
-        "shoes": {
-            "train": REAL_SHOES_TRAIN_DATASET,
-            "val": REAL_SHOES_VAL_DATASET,
-            "test": REAL_SHOES_TEST_DATASET,
-        },
-        "mugs": {
-            "train": REAL_MUGS_TRAIN_DATASET,
-            "val": REAL_MUGS_VAL_DATASET,
-            "test": REAL_MUGS_TEST_DATASET,
-        },
-        "tshirts": {
-            "train": REAL_TSHIRTS_TRAIN_DATASET,
-            "val": REAL_TSHIRTS_VAL_DATASET,
-            "test": REAL_TSHIRTS_TEST_DATASET,
-        },
-    }
+    for k, v in dataset_paths.items():
+        try:
+            num_images = len(json.load(open(v, "r"))["images"])
+            print(f"{k}: # images =  {num_images}")
+        except FileNotFoundError:
+            print(f"{k}   path not found!")
 
-    for k, v in dataset_dict.items():
-        print(k)
-        for k2, v2 in v.items():
-            # open json file
-            with open(v2, "r") as f:
-                data = json.load(f)
-                num_images = len(data["images"])
-                print(f"{k}-{k2}    num images: {num_images}")
+    # dataset_dict = {
+    #     "shoes": {
+    #         "train": REAL_SHOES_TRAIN_DATASET,
+    #         "val": REAL_SHOES_VAL_DATASET,
+    #         "test": REAL_SHOES_TEST_DATASET,
+    #     },
+    #     "mugs": {
+    #         "train": REAL_MUGS_TRAIN_DATASET,
+    #         "val": REAL_MUGS_VAL_DATASET,
+    #         "test": REAL_MUGS_TEST_DATASET,
+    #     },
+    #     "tshirts": {
+    #         "train": REAL_TSHIRTS_TRAIN_DATASET,
+    #         "val": REAL_TSHIRTS_VAL_DATASET,
+    #         "test": REAL_TSHIRTS_TEST_DATASET,
+    #     },
+    # }
+
+    # for k, v in dataset_paths.items():
+    #     print(k)
+    #     for k2, v2 in v.items():
+    #         # open json file
+    #         with open(v2, "r") as f:
+    #             data = json.load(f)
+    #             num_images = len(data["images"])
+    #             print(f"{k}-{k2}    num images: {num_images}")

@@ -23,7 +23,7 @@ def train_on_prompts_classname():
     mug_dict["json_dataset_path"] = str(PROMPTS_CLASSNAME_MUG_DATASET)
     mug_dict["max_epochs"] = epochs
     command = _create_command(mug_dict)
-    subprocess.run(command, shell=True)
+    # subprocess.run(command, shell=True)
 
     # shoes
     shoe_dict = SHOE_DICT.copy()
@@ -31,7 +31,7 @@ def train_on_prompts_classname():
     shoe_dict["json_dataset_path"] = str(PROMPTS_CLASSNAME_SHOE_DATASET)
     shoe_dict["max_epochs"] = epochs
     command = _create_command(shoe_dict)
-    subprocess.run(command, shell=True)
+    # subprocess.run(command, shell=True)
 
     # tshirts
     tshirt_dict = TSHIRT_DICT.copy()
@@ -51,7 +51,7 @@ def train_on_prompts_gemini():
     mug_dict["json_dataset_path"] = str(PROMPTS_GEMINI_MUG_DATASET)
     mug_dict["max_epochs"] = epochs
     command = _create_command(mug_dict)
-    subprocess.run(command, shell=True)
+    # subprocess.run(command, shell=True)
 
     # shoes
     shoe_dict = SHOE_DICT.copy()
@@ -59,7 +59,7 @@ def train_on_prompts_gemini():
     shoe_dict["json_dataset_path"] = str(PROMPTS_GEMINI_SHOE_DATASET)
     shoe_dict["max_epochs"] = epochs
     command = _create_command(shoe_dict)
-    subprocess.run(command, shell=True)
+    # subprocess.run(command, shell=True)
 
     # tshirts
     tshirt_dict = TSHIRT_DICT.copy()

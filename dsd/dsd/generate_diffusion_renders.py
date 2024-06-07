@@ -46,6 +46,9 @@ class ImageSaver(Thread):
         self.image_queue.task_done()
 
 
+NOT_RERENDER_EXISTING = True
+
+
 def generate_diffusion_renders(
     source_directory, target_directory, diffusion_renderers, prompts, num_prompts_per_scene=None
 ):
@@ -71,6 +74,10 @@ def generate_diffusion_renders(
         for image_dir in tqdm.tqdm(image_dirs):
             relative_path_to_source_dir = image_dir.relative_to(source_directory)
             image_target_dir = target_directory / relative_path_to_source_dir
+
+            if NOT_RERENDER_EXISTING and (image_target_dir / renderer.get_logging_name()).exists():
+                continue
+
             image_target_dir.mkdir(parents=True, exist_ok=True)
             # copy the orignal images
             blender_image_target_dir = image_target_dir / "original"

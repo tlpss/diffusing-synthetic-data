@@ -20,8 +20,9 @@ def get_images_per_renderer(render_path: pathlib.Path):
     # get all files in the folder
     renderer_to_images_dict = defaultdict(list)
     image_paths = list(render_path.glob("**/*.png"))
+    image_paths.extend(list(render_path.glob("**/*.jpg")))
     # remove all images with "rgb.png", "depth_image.png" ,"segmentation.png"
-    image_paths = [x for x in image_paths if not str(x.parents[0]).endswith("original") and x.suffix == ".png"]
+    image_paths = [x for x in image_paths if not str(x.parents[0]).endswith("original")]
 
     for path in image_paths:
         # check if image is all black -> NSFW filter -> skip
@@ -164,14 +165,14 @@ if __name__ == "__main__":
     import click
 
     @click.command()
-    @click.option("--render_base_path", type=str, required=True)
+    @click.option("--target_coco_path", type=str, required=True)
     @click.option("--render_path", type=str, required=True)
     @click.option("--category", type=str, required=True)
-    def generate_coco_datasets_cli(render_base_path, render_path, category):
-        render_base_path = pathlib.Path(render_base_path)
+    def generate_coco_datasets_cli(target_coco_path, render_path, category):
+        target_coco_path = pathlib.Path(target_coco_path)
         render_path = pathlib.Path(render_path)
         category = eval(category)
 
-        generate_coco_datasets(render_base_path, render_path, category)
+        generate_coco_datasets(target_coco_path, render_path, category)
 
     generate_coco_datasets_cli()
