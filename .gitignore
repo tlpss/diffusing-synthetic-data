@@ -8,3 +8,8 @@
 **.pyc
 data/
 model_cache/
+
+# yolo logs
+
+dsd/dsd-paper-yolo/
+yolo-logs/

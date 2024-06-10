@@ -131,7 +131,7 @@ dataset_paths = {k: str(v) for k, v in locals().items() if k.endswith("_DATASET"
 if __name__ == "__main__":
     for k, v in dataset_paths.items():
         try:
-            num_images = len(json.load(open(v, "r"))["images"])
+            num_images = len(json.load(open(v, "r"))["annotations"])
             print(f"{k}: # images =  {num_images}")
         except FileNotFoundError:
             print(f"{k}   path not found!")
