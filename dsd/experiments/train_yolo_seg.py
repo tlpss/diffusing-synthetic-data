@@ -58,7 +58,7 @@ def train_and_test_yolo_seg(train_name, train_dataset, val_dataset, test_dataset
 
     create_yolo_seg_data_yaml(train_dataset, val_dataset, category)
 
-    model.train(data="data.yaml", epochs=50, imgsz=512, name=yolo_train_name, batch=16)
+    model.train(data="data.yaml", epochs=100, imgsz=512, name=yolo_train_name, batch=8)
 
     # evaluate the model
     # load best checkpoint
@@ -71,14 +71,15 @@ def train_and_test_yolo_seg(train_name, train_dataset, val_dataset, test_dataset
     m_ap = test_results.seg.map
 
     if wandb.run:
-        wandb.log({"test/mAP": m_ap})
+        wandb.log({"test/seg_mAP": m_ap})
+        wandb.log({"test/bbox_mAP": test_results.box.map})
 
     print(f"mAP: {m_ap}")
     print("all APs")
 
     thresholds = ["0.5", "0.55", "0.6", "0.65", "0.7", "0.75", "0.8", "0.85", "0.9", "0.95"]
     for i, ap in enumerate(all_aps[0]):
-        wandb.log({f"test/AP_{thresholds[i]}": ap})
+        wandb.log({f"test/seg/AP_{thresholds[i]}": ap})
 
     # remove the temp yolo data.yaml file
     import os
@@ -90,16 +91,131 @@ def train_and_test_yolo_seg(train_name, train_dataset, val_dataset, test_dataset
 
 if __name__ == "__main__":
     from generate_yolo_datasets import coco_path_to_yolo_path
-    from paths import RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET, REAL_TSHIRTS_TEST_DATASET, REAL_TSHIRTS_VAL_DATASET
-
-    train_and_test_yolo_seg(
-        "tshirts-random",
-        coco_path_to_yolo_path(RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET),
-        coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET),
-        coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET),
-        "tshirt",
+    from paths import (  # noqa
+        PROMPTS_BLIP_MUG_DATASET,
+        PROMPTS_BLIP_SHOE_DATASET,
+        PROMPTS_BLIP_TSHIRT_DATASET,
+        PROMPTS_CLASSNAME_MUG_DATASET,
+        PROMPTS_CLASSNAME_SHOE_DATASET,
+        PROMPTS_CLASSNAME_TSHIRT_DATASET,
+        PROMPTS_GEMINI_MUG_DATASET,
+        PROMPTS_GEMINI_SHOE_DATASET,
+        PROMPTS_GEMINI_TSHIRT_DATASET,
+        RANDOM_TEXTURE_BASELINE_MUG_DATASET,
+        RANDOM_TEXTURE_BASELINE_SHOE_DATASET,
+        RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET,
+        REAL_MUGS_TEST_DATASET,
+        REAL_MUGS_TRAIN_DATASET,
+        REAL_MUGS_VAL_DATASET,
+        REAL_SHOES_TEST_DATASET,
+        REAL_SHOES_TRAIN_DATASET,
+        REAL_SHOES_VAL_DATASET,
+        REAL_TSHIRTS_TEST_DATASET,
+        REAL_TSHIRTS_TRAIN_DATASET,
+        REAL_TSHIRTS_VAL_DATASET,
     )
+
+    # train_and_test_yolo_seg(
+    #     "tshirts-random",
+    #     coco_path_to_yolo_path(RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET),
+    #     coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET),
+    #     coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET),
+    #     "tshirt",
+    # )
     # train_and_test_yolo_seg("tshirts-real", coco_path_to_yolo_path(REAL_TSHIRTS_TRAIN_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET), "tshirt")
     # train_and_test_yolo_seg("tshirts-prompts-blip", coco_path_to_yolo_path(PROMPTS_BLIP_TSHIRT_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET), "tshirt")
     # train_and_test_yolo_seg("tshirts-prompts-gemini", coco_path_to_yolo_path(PROMPTS_GEMINI_TSHIRT_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET), "tshirt")
     # train_and_test_yolo_seg("tshirts-prompts-classname", coco_path_to_yolo_path(PROMPTS_CLASSNAME_TSHIRT_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET), coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET), "tshirt")
+
+    def real_dataset_to_masked(x):
+        return Path(str(x).replace(".json", "_sam_masked.json"))
+
+    # SHOES
+
+    # real
+    train_and_test_yolo_seg(
+        "shoes-real",
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TRAIN_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    # random
+    train_and_test_yolo_seg(
+        "shoes-random",
+        coco_path_to_yolo_path(RANDOM_TEXTURE_BASELINE_SHOE_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    # prompt experiments
+    train_and_test_yolo_seg(
+        "shoes-prompts-blip",
+        coco_path_to_yolo_path(PROMPTS_BLIP_SHOE_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    train_and_test_yolo_seg(
+        "shoes-prompts-gemini",
+        coco_path_to_yolo_path(PROMPTS_GEMINI_SHOE_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    train_and_test_yolo_seg(
+        "shoes-prompts-classname",
+        coco_path_to_yolo_path(PROMPTS_CLASSNAME_SHOE_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    #### mugs
+
+    # real
+    train_and_test_yolo_seg(
+        "mugs-real",
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TRAIN_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
+
+    # random
+    train_and_test_yolo_seg(
+        "mugs-random",
+        coco_path_to_yolo_path(RANDOM_TEXTURE_BASELINE_MUG_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
+
+    # prompt experiments
+    train_and_test_yolo_seg(
+        "mugs-prompts-blip",
+        coco_path_to_yolo_path(PROMPTS_BLIP_MUG_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
+
+    train_and_test_yolo_seg(
+        "mugs-prompts-gemini",
+        coco_path_to_yolo_path(PROMPTS_GEMINI_MUG_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
+
+    train_and_test_yolo_seg(
+        "mugs-prompts-classname",
+        coco_path_to_yolo_path(PROMPTS_CLASSNAME_MUG_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
