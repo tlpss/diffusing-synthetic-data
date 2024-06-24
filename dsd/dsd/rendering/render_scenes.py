@@ -102,6 +102,7 @@ class RenderConfig:
     camera_minimum_distance: float = 0.3
     camera_maximum_distance: float = 0.7
     camera_minimum_height: float = 0.05
+    add_table_to_scene: bool = True
 
 
 def render_scenes(config: RenderConfig):  # noqa C901
@@ -113,20 +114,21 @@ def render_scenes(config: RenderConfig):  # noqa C901
 
     add_lighting()
 
-    # add a plane with size 2x2
-    # using a cube with scale 2x2x0.01
-    bpy.ops.mesh.primitive_cube_add(scale=(1, 1, 0.01), location=(0, 0, -0.011))
+    if config.add_table_to_scene:
+        # add a plane with size 2x2
+        # using a cube with scale 2x2x0.01
+        bpy.ops.mesh.primitive_cube_add(scale=(1, 1, 0.01), location=(0, 0, -0.011))
 
-    # make the color of the table dark grey
-    table = bpy.context.selected_objects[0]
-    add_material(
-        table,
-        [
-            0.2,
-        ]
-        * 3,
-        roughness=1.0,
-    )
+        # make the color of the table dark grey
+        table = bpy.context.selected_objects[0]
+        add_material(
+            table,
+            [
+                0.2,
+            ]
+            * 3,
+            roughness=1.0,
+        )
     meshes = list(config.mesh_directory.glob("**/*.obj"))
     mesh_object = None
     for mesh in tqdm(meshes):
@@ -180,8 +182,13 @@ def render_scenes(config: RenderConfig):  # noqa C901
 
         for i in range(config.n_renders_per_mesh):
 
-            table.scale[0] = np.random.uniform(*config.table_scale_range)
-            table.scale[1] = np.random.uniform(*config.table_scale_range)
+            # hack to have same random numbers with and without table
+            # should fix the see for each scene in the future to avoid these kind of issues...
+
+            x = np.random.uniform(*config.table_scale_range)
+            y = np.random.uniform(*config.table_scale_range)
+            if config.add_table_to_scene:
+                table.scale = (x, y, 1)
 
             # apply scale to the object
             bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
@@ -289,6 +296,8 @@ if __name__ == "__main__":  # noqa
     np.random.seed(2024)
     random.seed(2024)
 
+    ### WITH table configs
+
     # # mugs
     # config = RenderConfig(  mesh_directory = DATA_DIR / "meshes/mugs/objaverse-mugs-filtered/",
     #                         output_directory = DATA_DIR / "scenes" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
@@ -299,7 +308,7 @@ if __name__ == "__main__":  # noqa
     # # shoes
 
     config = RenderConfig(
-        mesh_directory=DATA_DIR / "meshes/shoes/GSO-labeled/",
+        mesh_directory=DATA_DIR / "meshes/shoes/GSO-labeled",
         output_directory=DATA_DIR / "scenes" / "shoes" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         render_keypoints=True,
         n_renders_per_mesh=12,
@@ -321,4 +330,42 @@ if __name__ == "__main__":  # noqa
     #     camera_maximum_distance=1.8, # matches the max 1m distance of a zed camera with FOV 67 degrees
     #     camera_minimum_height=0.5,
     # )
+
+    ### WO table configs
+
+    # # mugs
+    config = RenderConfig(
+        mesh_directory=DATA_DIR / "meshes/mugs/objaverse-mugs-filtered/",
+        output_directory=DATA_DIR / "scenes" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        render_keypoints=False,
+        n_renders_per_mesh=25,
+        add_table_to_scene=False,
+    )
+
+    # # shoes
+    render_scenes(config)
+
+    config = RenderConfig(
+        mesh_directory=DATA_DIR / "meshes/shoes/GSO-labeled/",
+        output_directory=DATA_DIR / "scenes" / "shoes" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        n_renders_per_mesh=12,
+        table_scale_range=(0.3, 1.0),
+        camera_minimum_distance=0.4,
+        camera_maximum_distance=0.9,
+        camera_minimum_height=0.2,
+        add_table_to_scene=False,
+    )
+    render_scenes(config)
+
+    # tshirts
+
+    config = RenderConfig(
+        mesh_directory=DATA_DIR / "meshes/tshirts/processed_meshes/",
+        output_directory=DATA_DIR / "scenes" / "tshirts" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        n_renders_per_mesh=10,
+        table_scale_range=(0.7, 1.3),
+        camera_minimum_distance=1.0,
+        camera_maximum_distance=1.8,  # matches the max 1m distance of a zed camera with FOV 67 degrees
+        camera_minimum_height=0.5,
+    )
     render_scenes(config)

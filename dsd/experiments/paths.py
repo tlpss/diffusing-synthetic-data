@@ -7,6 +7,14 @@ SHOE_SCENES_DIR = DATA_DIR / "scenes" / "shoes" / "gso-filtered-2500"
 MUG_SCENES_DIR = DATA_DIR / "scenes" / "mugs" / "objaverse-filtered-2500-ral"
 TSHIRT_SCENES_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-ordered"
 
+SHOE_SCENES_NO_TABLE_DIR = DATA_DIR / "scenes" / "shoes" / "gso-filtered-2500-no-table"
+MUG_SCENES_NO_TABLE_DIR = DATA_DIR / "scenes" / "mugs" / "objaverse-filtered-2500-ral-no-table"
+TSHIRT_SCENES_NO_TABLE_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-ordered-no-table"
+
+SHOE_NO_TABLE_SCENES_DIR = DATA_DIR / "scenes" / "shoes" / "gso-filtered-2500-no-table"
+MUG_NO_TABLE_SCENES_DIR = DATA_DIR / "scenes" / "mugs" / "objaverse-filtered-2500-ral-no-table"
+TSHIRT_NO_TABLE_SCENES_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-ordered-no-table"
+
 # real train  datasets
 REAL_DATA_DIR = DATA_DIR / "real"
 REAL_SHOES_TRAIN_DATASET = REAL_DATA_DIR / "shoes" / "dsd-shoes-robot-kpcentercropped" / "annotations_train.json"
@@ -125,6 +133,34 @@ PROMPTS_BLIP_TSHIRT_DATASET = (
 
 
 # two-stage experiment
+TWO_STAGE_BASELINE_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "04-two-stage-baseline"
+    / "2stage:crop=Cropped:ControlNetTXTFromDepthRenderer_ccs=1.5,margin=10,only_change_mask=True,inp=SD2InpaintingRenderer_strength=1,dilation=1"
+    / "annotations.json"
+)
+TWO_STAGE_BASELINE_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "04-two-stage-baseline"
+    / "2stage:crop=Cropped:ControlNetTXTFromDepthRenderer_ccs=1.5,margin=10,only_change_mask=True,inp=SD2InpaintingRenderer_strength=1,dilation=1"
+    / "annotations.json"
+)
+TWO_STAGE_BASELINE_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "04-two-stage-baseline"
+    / "2stage:crop=Cropped:ControlNetTXTFromDepthRenderer_ccs=1.5,margin=10,only_change_mask=True,inp=SD2InpaintingRenderer_strength=1,dilation=1"
+    / "annotations.json"
+)
+
 
 dataset_paths = {k: str(v) for k, v in locals().items() if k.endswith("_DATASET")}
 

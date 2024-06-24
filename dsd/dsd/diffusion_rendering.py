@@ -261,13 +261,13 @@ class SD15InpaintingRenderer(DiffusionRenderer):
         return f"{self.__class__.__name__}_strength={self.strength}"
 
 
-class SD2FromDepthRenderer(DiffusionRenderer):
+class SD2FromDepthRendererMIDAS(DiffusionRenderer):
     """
     Stable Diffusion 2 + native depth conditioning
     https://huggingface.co/stabilityai/stable-diffusion-2-depth
 
 
-    use the GenAug settings for this model.
+    use the GenAug settings for this model. -> no GT depth, is calculated with MIDAS
     """
 
     def __init__(self, num_images_per_prompt=4, num_inference_steps=50, strength=0.9):
@@ -291,6 +291,43 @@ class SD2FromDepthRenderer(DiffusionRenderer):
         output_dict = self.pipe(
             prompt=prompt,
             image=rgb_image,
+            negative_prompt=SDV2_NEGATIVE_PROMPT,
+            num_images_per_prompt=self.num_images_per_prompt,
+            num_inference_steps=self.num_inference_steps,
+            strength=self.strength,
+            generator=self.generator,
+        )
+        images = output_dict.images
+        return images
+
+
+class SD2FromDepthRenderer(DiffusionRenderer):
+    """
+    Stable Diffusion 2 + native depth conditioning
+    https://huggingface.co/stabilityai/stable-diffusion-2-depth
+
+
+    with depth images.
+    """
+
+    def __init__(self, num_images_per_prompt=4, num_inference_steps=50, strength=1.0):
+        super().__init__(num_images_per_prompt, num_inference_steps)
+        self.strength = strength
+
+        self.pipe = StableDiffusionDepth2ImgPipeline.from_pretrained(
+            "stabilityai/stable-diffusion-2-depth",
+            torch_dtype=torch.float16,
+        ).to("cuda")
+
+    def __call__(self, prompt, input_images, **kwargs):
+        depth_image = input_images.get_inverted_depth_image_torch()[:, 0, :, :]
+        rgb_image = Image.fromarray((input_images.rgb_image * 255).astype(np.uint8))
+        print(depth_image.shape)
+
+        output_dict = self.pipe(
+            prompt=prompt,
+            image=rgb_image,
+            depth_map=depth_image,
             negative_prompt=SDV2_NEGATIVE_PROMPT,
             num_images_per_prompt=self.num_images_per_prompt,
             num_inference_steps=self.num_inference_steps,
@@ -651,6 +688,34 @@ class ControlNetTXTFromDepthRenderer(ControlNetRenderer):
         return input_images.get_inverted_depth_image_torch()
 
 
+# class ControlnetXSTXTFromDepthRenderer(ControlNetRenderer):
+#     """
+#     https://vislearn.github.io/ControlNet-XS/
+#     """
+#     def __init__(
+#         self,
+#         num_images_per_prompt: int = 4,
+#         num_inference_steps: int = 50,
+#         controlnet_conditioning_scale: float = ControlNetRenderer.DEFAULT_CONTROLNET_CONDITIONING_SCALE,
+#         strength: float = ControlNetRenderer.DEFAULT_STRENGTH,
+#     ):
+#         super().__init__(
+#             num_images_per_prompt,
+#             num_inference_steps,
+#             controlnet_conditioning_scale,
+#             strength,
+#             use_img2img_pipeline=False,
+#         )
+#         self.controlnet = ControlNetXSAdapter.from_pretrained(
+#             "UmerHA/Testing-ConrolNetXS-SD2.1-depth", torch_dtype=torch.float16
+#         ).to("cuda")
+
+#         self.pipe = StableDiffusionControlNetXSPipeline.from_pretrained(
+#             "lllyasviel/stable-diffusion-xs", controlnet=self.controlnet, torch_dtype=torch.float16
+#         ).to("cuda")
+
+#     def get_control_image(self, input_images: DiffusionRenderInputImages):
+#         return input_images.get_inverted_depth_image_torch()
 class ControlnetfromHEDRenderer(ControlNetRenderer):
     """
     SD1.5 + controlnet 1.1 trained on HED edges

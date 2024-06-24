@@ -131,6 +131,9 @@ def generate_crop_inpaint_diffusion_renders(
             blender_image_target_dir = image_target_dir / "original"
             blender_image_target_dir.mkdir(parents=True, exist_ok=True)
             for image_path in image_dir.glob("*"):
+                # exclude blend file to reduce storage
+                if image_path.suffix == ".blend":
+                    continue
                 shutil.copy(image_path, blender_image_target_dir)
             input_images = DiffusionRenderInputImages.from_render_dir(image_dir)
 

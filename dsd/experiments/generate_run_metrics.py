@@ -1,5 +1,5 @@
+from experiments.keypoint_wandb_runs import get_meanAP_from_run, get_model_checkpoint_artifact_from_run
 from experiments.paths import REAL_MUGS_TEST_DATASET, REAL_SHOES_TEST_DATASET, REAL_TSHIRTS_TEST_DATASET
-from experiments.wandb_runs import get_meanAP_from_run, get_model_checkpoint_artifact_from_run
 from keypoint_detection.utils.load_checkpoints import get_model_from_wandb_checkpoint
 
 from dsd.generate_coco_datasets_from_diffusion_renders import mug_category, shoe_category, tshirt_category
@@ -48,6 +48,10 @@ def generate_AKD_dict(all_runs):
 
 
 if __name__ == "__main__":
+    from pathlib import Path
+
+    run_metric_dir = Path(__file__).parent / "run_metrics"
+
     all_runs = {k: v for k, v in globals().items() if "RUN" in k}
 
     # get first two entries of dict
@@ -59,11 +63,11 @@ if __name__ == "__main__":
     # save to file
     import json
 
-    with open("meanAP_dict.json", "w") as f:
+    with open(str(run_metric_dir / "meanAP_dict.json"), "w") as f:
         json.dump(meanAP_dict, f)
 
-    with open("AKD_dict.json", "w") as f:
+    with open(str(run_metric_dir / "AKD_dict.json"), "w") as f:
         json.dump(AKD_dict, f)
 
-    with open("median_KD_dict.json", "w") as f:
+    with open(str(run_metric_dir / "median_KD_dict.json"), "w") as f:
         json.dump(median_KD_dict, f)

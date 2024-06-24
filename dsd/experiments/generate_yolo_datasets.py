@@ -25,6 +25,9 @@ from paths import (  # noqa
     REAL_TSHIRTS_TEST_DATASET,
     REAL_TSHIRTS_TRAIN_DATASET,
     REAL_TSHIRTS_VAL_DATASET,
+    TWO_STAGE_BASELINE_MUG_DATASET,
+    TWO_STAGE_BASELINE_SHOE_DATASET,
+    TWO_STAGE_BASELINE_TSHIRT_DATASET,
 )
 
 
@@ -62,7 +65,7 @@ if __name__ == "__main__":
     # create list of all global variables that contain 'TSHIRT' and 'DATASET'
     tshirt_datasets = {k: v for k, v in globals().items() if "TSHIRT" in k and "DATASET" in k}
     print(tshirt_datasets)
-    # generate_datasets(tshirt_datasets)
+    generate_datasets(tshirt_datasets)
 
     # create list of all global variables that contain 'SHOE' and 'DATASET'
     shoe_datasets = {k: v for k, v in globals().items() if "SHOE" in k and "DATASET" in k}

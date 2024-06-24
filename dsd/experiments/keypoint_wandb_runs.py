@@ -27,7 +27,11 @@ PROMPT_BLIP_SHOES_RUN = "tlips/dsd-paper/runs/6c8a4c7j"
 PROMPT_BLIP_TSHIRTS_RUN = "tlips/dsd-paper/runs/xorggoo7"
 
 
-##
+## two stage baseline
+
+TWO_STAGE_BASELINE_MUGS_RUN = "tlips/dsd-paper/runs/681l1mbo"
+TWO_STAGE_BASELINE_SHOES_RUN = "tlips/dsd-paper/runs/jpx0m49x"
+TWO_STAGE_BASELINE_TSHIRTS_RUN = "tlips/dsd-paper/runs/4pxny9v7"
 
 
 def get_model_checkpoint_artifact_from_run(run_id):

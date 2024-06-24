@@ -96,7 +96,7 @@ class CroppedRenderer(DiffusionRenderer):
         return results
 
     def get_logging_name(self) -> str:
-        return f"Cropped:{self.renderer.get_logging_name()}, margin={self.bbox_margin}, only_change_mask={self.only_change_mask})"
+        return f"Cropped:{self.renderer.get_logging_name()},margin={self.bbox_margin},only_change_mask={self.only_change_mask}"
 
 
 class CropAndInpaintRenderer(DiffusionRenderer):
@@ -144,7 +144,7 @@ class CropAndInpaintRenderer(DiffusionRenderer):
         return stage_2_results
 
     def get_logging_name(self) -> str:
-        return f"2stage:crop={self.crop_renderer.get_logging_name()}, inp={self.inpainter.get_logging_name()}, dilation={self.mask_dilation_iterations})"
+        return f"2stage:crop={self.crop_renderer.get_logging_name()},inp={self.inpainter.get_logging_name()},dilation={self.mask_dilation_iterations}"
 
 
 # def crop_and_diffuse(crop_renderer: CroppedRenderer, inpainter: DiffusionRenderer, input_images: DiffusionRenderInputImages, object_prompt, background_prompt,**kwargs):
