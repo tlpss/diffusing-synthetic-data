@@ -26,9 +26,9 @@ def get_images_per_renderer(render_path: pathlib.Path):
 
     for path in image_paths:
         # check if image is all black -> NSFW filter -> skip
-        image = cv2.imread(str(path))
-        if np.max(image) < 1e-4:
-            continue
+        # image = cv2.imread(str(path))
+        # if np.max(image) < 1e-4:
+        #     continue
 
         renderer = path.parent.relative_to(path.parents[1])
         renderer_to_images_dict[str(renderer)].append(path)

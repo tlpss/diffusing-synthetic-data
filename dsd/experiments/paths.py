@@ -7,13 +7,10 @@ SHOE_SCENES_DIR = DATA_DIR / "scenes" / "shoes" / "gso-filtered-2500"
 MUG_SCENES_DIR = DATA_DIR / "scenes" / "mugs" / "objaverse-filtered-2500-ral"
 TSHIRT_SCENES_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-ordered"
 
-SHOE_SCENES_NO_TABLE_DIR = DATA_DIR / "scenes" / "shoes" / "gso-filtered-2500-no-table"
-MUG_SCENES_NO_TABLE_DIR = DATA_DIR / "scenes" / "mugs" / "objaverse-filtered-2500-ral-no-table"
-TSHIRT_SCENES_NO_TABLE_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-ordered-no-table"
 
 SHOE_NO_TABLE_SCENES_DIR = DATA_DIR / "scenes" / "shoes" / "gso-filtered-2500-no-table"
 MUG_NO_TABLE_SCENES_DIR = DATA_DIR / "scenes" / "mugs" / "objaverse-filtered-2500-ral-no-table"
-TSHIRT_NO_TABLE_SCENES_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-ordered-no-table"
+TSHIRT_NO_TABLE_SCENES_DIR = DATA_DIR / "scenes" / "tshirts" / "syncloth-filtered-2500-no-table-ordered"
 
 # real train  datasets
 REAL_DATA_DIR = DATA_DIR / "real"
@@ -38,9 +35,23 @@ SHOE_RANDOM_TEXTURE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "shoes" / "001"
 MUG_RANDOM_TEXTURE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "mugs" / "001"
 TSHIRT_RANDOM_TEXTURE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "tshirts" / "001"
 
+SHOE_RANDOM_TEXTURE_NO_TABLE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "shoes" / "no-table"
+MUG_RANDOM_TEXTURE_NO_TABLE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "mugs" / "no-table"
+TSHIRT_RANDOM_TEXTURE_NO_TABLE_RENDER_DIR = RANDOM_TEXTURE_BASELINE_DIR / "tshirts" / "no-table"
+
 RANDOM_TEXTURE_BASELINE_SHOE_DATASET = DATA_DIR / "coco" / "shoes" / "random_textures" / "annotations.json"
 RANDOM_TEXTURE_BASELINE_MUG_DATASET = DATA_DIR / "coco" / "mugs" / "random_textures" / "annotations.json"
 RANDOM_TEXTURE_BASELINE_TSHIRT_DATASET = DATA_DIR / "coco" / "tshirts" / "random_textures" / "annotations.json"
+
+RANDOM_TEXTURE_BASELINE_SHOE_NO_TABLE_DATASET = (
+    DATA_DIR / "coco" / "shoes" / "random_textures_no_table" / "random_textures" / "annotations.json"
+)
+RANDOM_TEXTURE_BASELINE_MUG_NO_TABLE_DATASET = (
+    DATA_DIR / "coco" / "mugs" / "random_textures_no_table" / "random_textures" / "annotations.json"
+)
+RANDOM_TEXTURE_BASELINE_TSHIRT_NO_TABLE_DATASET = (
+    DATA_DIR / "coco" / "tshirts" / "random_textures_no_table" / "random_textures" / "annotations.json"
+)
 
 ### DIFFUSION RENDERS
 
@@ -158,6 +169,34 @@ TWO_STAGE_BASELINE_SHOE_DATASET = (
     / "diffusion_renders"
     / "04-two-stage-baseline"
     / "2stage:crop=Cropped:ControlNetTXTFromDepthRenderer_ccs=1.5,margin=10,only_change_mask=True,inp=SD2InpaintingRenderer_strength=1,dilation=1"
+    / "annotations.json"
+)
+
+ONE_STAGE_NO_TABLE_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "06-no-table-scenes"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+ONE_STAGE_NO_TABLE_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "06-no-table-scenes"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+ONE_STAGE_NO_TABLE_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "06-no-table-scenes"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
     / "annotations.json"
 )
 

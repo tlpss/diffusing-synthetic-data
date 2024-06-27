@@ -8,6 +8,7 @@
 import pathlib
 import random
 import shutil
+from dataclasses import dataclass
 
 import bpy
 import numpy as np
@@ -21,7 +22,12 @@ from dsd.rendering.blender.polyhaven.polyhaven_materials import add_texture_to_o
 from dsd.rendering.blender.renderer import CyclesRendererConfig, render_scene
 
 
-def generate_random_texture_renders(source_directory, target_directory, num_renders_per_scene=1):
+@dataclass
+class Config:
+    scene_contains_table: bool = True
+
+
+def generate_random_texture_renders(source_directory, target_directory, num_renders_per_scene=1, config=Config()):
     blender_scene_paths = list(source_directory.glob("**/scene.blend"))
     image_dirs = [p.parent for p in blender_scene_paths]
     image_dirs = sorted(image_dirs)
@@ -38,19 +44,21 @@ def generate_random_texture_renders(source_directory, target_directory, num_rend
         blender_image_target_dir = image_target_dir / "original"
         blender_image_target_dir.mkdir(parents=True, exist_ok=True)
         for image_path in image_dir.glob("*"):
+            # ignore blend file
+            if image_path.suffix == ".blend":
+                continue
             shutil.copy(image_path, blender_image_target_dir)
 
         for i in range(num_renders_per_scene):
             bpy.ops.wm.open_mainfile(filepath=str(image_dir / "scene.blend"))
 
             # get the cube object and select it
-            cube = bpy.data.objects["Cube"]
+            if config.scene_contains_table:
+                cube = bpy.data.objects["Cube"]
+                add_texture_to_object(cube)
 
             # get the 'object'
             mesh_object = bpy.data.objects["object"]
-
-            # add a random polyhaven material to the cube
-            add_texture_to_object(cube)
             add_texture_to_object(mesh_object)
 
             # add a random polyhaven HDRI background to the scene

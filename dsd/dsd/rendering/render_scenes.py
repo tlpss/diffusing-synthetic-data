@@ -103,14 +103,17 @@ class RenderConfig:
     camera_maximum_distance: float = 0.7
     camera_minimum_height: float = 0.05
     add_table_to_scene: bool = True
+    render_table_without_object: bool = True
 
 
 def render_scenes(config: RenderConfig):  # noqa C901
     # fix the random seeds to make reproducible renders
     np.random.seed(2024)
     random.seed(2024)
-    # delete default cube
-    bpy.ops.object.delete(use_global=False)
+    # delete all objects
+    bpy.ops.object.select_all(action="DESELECT")
+    bpy.ops.object.select_by_type(type="MESH")
+    bpy.ops.object.delete()
 
     add_lighting()
 
@@ -249,6 +252,20 @@ def render_scenes(config: RenderConfig):  # noqa C901
 
             ## save all data
 
+            # save an image of the table without the object
+
+            if config.add_table_to_scene and config.render_table_without_object:
+                # temporarily hide the object
+                mesh_object.hide_render = True
+                # set table pass index to 1
+                table.pass_index = 1
+                render_scene(
+                    render_config=CyclesRendererConfig(num_samples=4, render_rgb=True, render_segmentation=True),
+                    output_dir=str(mesh_output_dir / f"{i:03d}" / "table_only"),
+                )
+                mesh_object.hide_render = False
+                table.pass_index = 0
+
             # save the pose of the mug in the camera frame
             object_pose = np.eye(4)
             object_pose[:3, 3] = mesh_object.location
@@ -299,11 +316,13 @@ if __name__ == "__main__":  # noqa
     ### WITH table configs
 
     # # mugs
-    # config = RenderConfig(  mesh_directory = DATA_DIR / "meshes/mugs/objaverse-mugs-filtered/",
-    #                         output_directory = DATA_DIR / "scenes" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-    #                         render_keypoints=False,
-    #                         n_renders_per_mesh=25
-    #                        )
+    config = RenderConfig(
+        mesh_directory=DATA_DIR / "meshes/mugs/objaverse-mugs-filtered/",
+        output_directory=DATA_DIR / "scenes" / "mugs" / datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        render_keypoints=False,
+        n_renders_per_mesh=25,
+    )
+    render_scenes(config)
 
     # # shoes
 
@@ -343,7 +362,7 @@ if __name__ == "__main__":  # noqa
     )
 
     # # shoes
-    render_scenes(config)
+    # render_scenes(config)
 
     config = RenderConfig(
         mesh_directory=DATA_DIR / "meshes/shoes/GSO-labeled/",
@@ -355,7 +374,7 @@ if __name__ == "__main__":  # noqa
         camera_minimum_height=0.2,
         add_table_to_scene=False,
     )
-    render_scenes(config)
+    # render_scenes(config)
 
     # tshirts
 
@@ -367,5 +386,6 @@ if __name__ == "__main__":  # noqa
         camera_minimum_distance=1.0,
         camera_maximum_distance=1.8,  # matches the max 1m distance of a zed camera with FOV 67 degrees
         camera_minimum_height=0.5,
+        add_table_to_scene=False,
     )
     render_scenes(config)
