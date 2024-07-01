@@ -50,6 +50,8 @@ def generate_AKD_dict(all_runs):
 if __name__ == "__main__":
     from pathlib import Path
 
+    from experiments.keypoint_wandb_runs import *  # noqa
+
     run_metric_dir = Path(__file__).parent / "run_metrics"
 
     all_runs = {k: v for k, v in globals().items() if "RUN" in k}

@@ -34,6 +34,19 @@ TWO_STAGE_BASELINE_SHOES_RUN = "tlips/dsd-paper/runs/jpx0m49x"
 TWO_STAGE_BASELINE_TSHIRTS_RUN = "tlips/dsd-paper/runs/4pxny9v7"
 
 
+## No table diffusion
+NO_TABLE_ONE_STAGE_MUGS_RUN = "tlips/dsd-paper/runs/f7axdezq"
+NO_TABLE_ONE_STAGE_SHOES_RUN = "tlips/dsd-paper/runs/zq4gxiqq"
+NO_TABLE_ONE_STAGE_TSHIRTS_RUN = "tlips/dsd-paper/runs/hhcmazbm"
+
+## no table random textures
+RANDOM_TEXTURES_NO_TABLE_MUGS_RUN = "tlips/dsd-paper/runs/2hdpahys"
+RANDOM_TEXTURES_NO_TABLE_SHOES_RUN = "tlips/dsd-paper/runs/mtifa9qa"
+RANDOM_TEXTURES_NO_TABLE_TSHIRTS_RUN = "tlips/dsd-paper/runs/gxgzakg3"
+
+## three stage
+
+
 def get_model_checkpoint_artifact_from_run(run_id):
     api = wandb.Api()
     run = api.run(run_id)
