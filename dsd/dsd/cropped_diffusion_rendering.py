@@ -147,6 +147,50 @@ class CropAndInpaintRenderer(DiffusionRenderer):
         return f"2stage:crop={self.crop_renderer.get_logging_name()},inp={self.inpainter.get_logging_name()},dilation={self.mask_dilation_iterations}"
 
 
+class DualInpaintRenderer(DiffusionRenderer):
+    def __init__(self, inpainter: DiffusionRenderer, mask_dilation_iterations: int = 1):
+        self.inpainter = inpainter
+        self.mask_dilation_iterations = mask_dilation_iterations
+
+    def __call__(self, prompt: str, background_prompt: str, input_images: DiffusionRenderInputImages, **kwargs):
+        # print("prompt", prompt)
+        # print("background_prompt", background_prompt)
+
+        # first inpaint the object mask with the object prompt
+        stage_1_results = self.inpainter(prompt, input_images, **kwargs)
+
+        # create the input images for the second inpainting
+        stage_2_inputs = DiffusionRenderInputImages(
+            np.copy(input_images.rgb_image), np.copy(input_images.depth_image), np.copy(input_images.mask)
+        )
+        original_mask = np.copy(input_images.mask)
+
+        # invert the mask to inpaint the background
+        # but first dilate it slightly to limit 'blurring' by the diffusion inpaint model
+        # which tries to make the transition between the mask and the non-mask smooth
+        stage_2_inputs.mask = cv2.dilate(
+            stage_2_inputs.mask, np.ones((5, 5), np.uint8), iterations=self.mask_dilation_iterations
+        )
+        stage_2_inputs.mask = 1 - stage_2_inputs.mask
+        # duplicate the input image to create one for each stage 1 result
+        stage_2_inputs = [copy.deepcopy(stage_2_inputs) for _ in stage_1_results]
+
+        for i in range(len(stage_1_results)):
+            stage_2_inputs[i].rgb_image = np.array(stage_1_results[i]).astype(np.float32) / 255.0
+
+        results = []
+        for i in range(len(stage_1_results)):
+            stage_2_results = self.inpainter(background_prompt, stage_2_inputs[i], **kwargs)
+            for j, image in enumerate(stage_2_results):
+                # paste the original image back in the mask
+                # to reduce any artifacts from the inpainting
+                image = np.array(image).astype(np.float32) / 255.0
+                image[original_mask > 0.5] = stage_2_inputs[i].rgb_image[original_mask > 0.5]
+                stage_2_results[j] = Image.fromarray((image * 255).astype(np.uint8))
+            results.extend(stage_2_results)
+        return stage_2_results
+
+
 # def crop_and_diffuse(crop_renderer: CroppedRenderer, inpainter: DiffusionRenderer, input_images: DiffusionRenderInputImages, object_prompt, background_prompt,**kwargs):
 #     stage_1_results = crop_renderer(object_prompt, input_images, **kwargs)
 #     stage_2_input = DiffusionRenderInputImages(np.copy(input_images.rgb_image), np.copy(input_images.depth_image), np.copy(input_images.mask))
