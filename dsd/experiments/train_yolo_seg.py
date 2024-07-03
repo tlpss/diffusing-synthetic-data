@@ -124,6 +124,9 @@ if __name__ == "__main__":
         TWO_STAGE_BASELINE_MUG_DATASET,
         TWO_STAGE_BASELINE_SHOE_DATASET,
         TWO_STAGE_BASELINE_TSHIRT_DATASET,
+        THREE_STAGE_SHOE_DATASET,
+        THREE_STAGE_MUG_DATASET,
+        THREE_STAGE_TSHIRT_DATASET,
     )
 
     def real_dataset_to_masked(x):
@@ -332,11 +335,37 @@ def train_on_no_table_one_stage_diffusion():
     )
 
 
+def train_on_three_stage_diffusion():
+    # tshirts, shoes, mugs
+    train_and_test_yolo_seg(
+        "shoes-three-stage",
+        coco_path_to_yolo_path(THREE_STAGE_SHOE_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    train_and_test_yolo_seg(
+        "mugs-three-stage",
+        coco_path_to_yolo_path(THREE_STAGE_MUG_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
+    train_and_test_yolo_seg(
+        "tshirts-three-stage",
+        coco_path_to_yolo_path(THREE_STAGE_TSHIRT_DATASET),
+        coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET),
+        coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET),
+        "tshirt",
+    )
+
 ### TRAIN COMMANDS
 
 # train_on_real_datasets()
 # train_on_random_texture_baselines()
 # train_on_prompt_experiments()
 # train_on_two_stage_baseline()
-train_on_no_table_random()
-train_on_no_table_one_stage_diffusion()
+# train_on_no_table_random()
+# train_on_no_table_one_stage_diffusion()
+train_on_three_stage_diffusion()

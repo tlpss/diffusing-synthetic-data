@@ -200,6 +200,35 @@ ONE_STAGE_NO_TABLE_SHOE_DATASET = (
     / "annotations.json"
 )
 
+THREE_STAGE_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "07-three-stage"
+    / "ThreeStageRenderer"
+    / "annotations.json"
+)
+THREE_STAGE_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "07-three-stage"
+    / "ThreeStageRenderer"
+    / "annotations.json"
+)
+THREE_STAGE_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "07-three-stage"
+    / "ThreeStageRenderer"
+    / "annotations.json"
+)
+
+
 
 dataset_paths = {k: str(v) for k, v in locals().items() if k.endswith("_DATASET")}
 
