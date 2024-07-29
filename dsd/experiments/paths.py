@@ -239,6 +239,35 @@ DUAL_INPAINT_TSHIRTS_DATASET = (
     / "annotations.json"
 )
 
+IMG2IMG_MUGS_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "09-img2img"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+IMG2IMG_SHOES_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "09-img2img"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+
+IMG2IMG_TSHIRTS_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "09-img2img"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+
 
 dataset_paths = {k: str(v) for k, v in locals().items() if k.endswith("_DATASET")}
 
