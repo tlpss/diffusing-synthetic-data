@@ -2,6 +2,9 @@ import subprocess
 
 from experiments.train_keypoints import MUG_DICT, SHOE_DICT, TSHIRT_DICT, _create_command
 from paths import (  # noqa
+    DUAL_INPAINT_MUGS_DATASET,
+    DUAL_INPAINT_SHOES_DATASET,
+    DUAL_INPAINT_TSHIRTS_DATASET,
     ONE_STAGE_NO_TABLE_MUG_DATASET,
     ONE_STAGE_NO_TABLE_SHOE_DATASET,
     ONE_STAGE_NO_TABLE_TSHIRT_DATASET,
@@ -14,12 +17,12 @@ from paths import (  # noqa
     PROMPTS_GEMINI_MUG_DATASET,
     PROMPTS_GEMINI_SHOE_DATASET,
     PROMPTS_GEMINI_TSHIRT_DATASET,
+    THREE_STAGE_MUG_DATASET,
+    THREE_STAGE_SHOE_DATASET,
+    THREE_STAGE_TSHIRT_DATASET,
     TWO_STAGE_BASELINE_MUG_DATASET,
     TWO_STAGE_BASELINE_SHOE_DATASET,
     TWO_STAGE_BASELINE_TSHIRT_DATASET,
-    THREE_STAGE_SHOE_DATASET,
-    THREE_STAGE_MUG_DATASET,
-    THREE_STAGE_TSHIRT_DATASET,
 )
 
 
@@ -156,6 +159,7 @@ def train_on_no_table():
     command = _create_command(tshirt_dict)
     subprocess.run(command, shell=True)
 
+
 def train_on_three_stage():
     epochs = 20
     mug_dict = MUG_DICT.copy()
@@ -180,10 +184,37 @@ def train_on_three_stage():
     command = _create_command(tshirt_dict)
     subprocess.run(command, shell=True)
 
+
+def train_on_dual_inpainting_diffusion():
+    epochs = 20
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-dual-inpainting"
+    mug_dict["json_dataset_path"] = str(DUAL_INPAINT_MUGS_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    print(command)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-dual-inpainting"
+    shoe_dict["json_dataset_path"] = str(DUAL_INPAINT_SHOES_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-dual-inpainting"
+    tshirt_dict["json_dataset_path"] = str(DUAL_INPAINT_TSHIRTS_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+
 if __name__ == "__main__":
     # train_on_prompts_blip()
     # train_on_prompts_gemini()
     # train_on_prompts_classname()
     # train_on_2_stage_baseline()
-    #train_on_no_table()
-    train_on_three_stage()
+    # train_on_no_table()
+    # train_on_three_stage()
+    train_on_dual_inpainting_diffusion()

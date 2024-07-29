@@ -94,6 +94,9 @@ def train_and_test_yolo_seg(train_name, train_dataset, val_dataset, test_dataset
 if __name__ == "__main__":
     from generate_yolo_datasets import coco_path_to_yolo_path
     from paths import (  # noqa
+        DUAL_INPAINT_MUGS_DATASET,
+        DUAL_INPAINT_SHOES_DATASET,
+        DUAL_INPAINT_TSHIRTS_DATASET,
         ONE_STAGE_NO_TABLE_MUG_DATASET,
         ONE_STAGE_NO_TABLE_SHOE_DATASET,
         ONE_STAGE_NO_TABLE_TSHIRT_DATASET,
@@ -121,12 +124,12 @@ if __name__ == "__main__":
         REAL_TSHIRTS_TEST_DATASET,
         REAL_TSHIRTS_TRAIN_DATASET,
         REAL_TSHIRTS_VAL_DATASET,
+        THREE_STAGE_MUG_DATASET,
+        THREE_STAGE_SHOE_DATASET,
+        THREE_STAGE_TSHIRT_DATASET,
         TWO_STAGE_BASELINE_MUG_DATASET,
         TWO_STAGE_BASELINE_SHOE_DATASET,
         TWO_STAGE_BASELINE_TSHIRT_DATASET,
-        THREE_STAGE_SHOE_DATASET,
-        THREE_STAGE_MUG_DATASET,
-        THREE_STAGE_TSHIRT_DATASET,
     )
 
     def real_dataset_to_masked(x):
@@ -360,6 +363,33 @@ def train_on_three_stage_diffusion():
         "tshirt",
     )
 
+
+def train_on_dual_inpainting():
+    # tshirts, shoes, mugs
+    train_and_test_yolo_seg(
+        "shoes-dual-inpainting",
+        coco_path_to_yolo_path(DUAL_INPAINT_SHOES_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    train_and_test_yolo_seg(
+        "mugs-dual-inpainting",
+        coco_path_to_yolo_path(DUAL_INPAINT_MUGS_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
+    train_and_test_yolo_seg(
+        "tshirts-dual-inpainting",
+        coco_path_to_yolo_path(DUAL_INPAINT_TSHIRTS_DATASET),
+        coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET),
+        coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET),
+        "tshirt",
+    )
+
+
 ### TRAIN COMMANDS
 
 # train_on_real_datasets()
@@ -368,4 +398,5 @@ def train_on_three_stage_diffusion():
 # train_on_two_stage_baseline()
 # train_on_no_table_random()
 # train_on_no_table_one_stage_diffusion()
-train_on_three_stage_diffusion()
+# train_on_three_stage_diffusion()
+train_on_dual_inpainting()

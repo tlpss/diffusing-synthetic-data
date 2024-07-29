@@ -3,6 +3,9 @@ from pathlib import Path
 from airo_dataset_tools.coco_tools.coco_instances_to_yolo import create_yolo_dataset_from_coco_instances_dataset
 from paths import (  # noqa
     DATA_DIR,
+    DUAL_INPAINT_MUGS_DATASET,
+    DUAL_INPAINT_SHOES_DATASET,
+    DUAL_INPAINT_TSHIRTS_DATASET,
     ONE_STAGE_NO_TABLE_MUG_DATASET,
     ONE_STAGE_NO_TABLE_SHOE_DATASET,
     ONE_STAGE_NO_TABLE_TSHIRT_DATASET,
