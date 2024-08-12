@@ -2,9 +2,27 @@ import subprocess
 
 from experiments.train_keypoints import MUG_DICT, SHOE_DICT, TSHIRT_DICT, _create_command
 from paths import (  # noqa
+    CCS_COMPARISON_05_MUG_DATASET,
+    CCS_COMPARISON_05_SHOE_DATASET,
+    CCS_COMPARISON_05_TSHIRT_DATASET,
+    CCS_COMPARISON_10_MUG_DATASET,
+    CCS_COMPARISON_10_SHOE_DATASET,
+    CCS_COMPARISON_10_TSHIRT_DATASET,
+    CCS_COMPARISON_15_MUG_DATASET,
+    CCS_COMPARISON_15_SHOE_DATASET,
+    CCS_COMPARISON_15_TSHIRT_DATASET,
+    CCS_COMPARISON_20_MUG_DATASET,
+    CCS_COMPARISON_20_SHOE_DATASET,
+    CCS_COMPARISON_20_TSHIRT_DATASET,
+    CCS_COMPARISON_25_MUG_DATASET,
+    CCS_COMPARISON_25_SHOE_DATASET,
+    CCS_COMPARISON_25_TSHIRT_DATASET,
     DUAL_INPAINT_MUGS_DATASET,
     DUAL_INPAINT_SHOES_DATASET,
     DUAL_INPAINT_TSHIRTS_DATASET,
+    IMG2IMG_MUGS_DATASET,
+    IMG2IMG_SHOES_DATASET,
+    IMG2IMG_TSHIRTS_DATASET,
     ONE_STAGE_NO_TABLE_MUG_DATASET,
     ONE_STAGE_NO_TABLE_SHOE_DATASET,
     ONE_STAGE_NO_TABLE_TSHIRT_DATASET,
@@ -23,6 +41,9 @@ from paths import (  # noqa
     TWO_STAGE_BASELINE_MUG_DATASET,
     TWO_STAGE_BASELINE_SHOE_DATASET,
     TWO_STAGE_BASELINE_TSHIRT_DATASET,
+    TWO_STAGE_LARGER_MASK_MUGS_DATASET,
+    TWO_STAGE_LARGER_MASK_SHOES_DATASET,
+    TWO_STAGE_LARGER_MASK_TSHIRTS_DATASET,
 )
 
 
@@ -210,6 +231,170 @@ def train_on_dual_inpainting_diffusion():
     subprocess.run(command, shell=True)
 
 
+def train_on_img2img_diffusion():
+    epochs = 20
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-img2img"
+    mug_dict["json_dataset_path"] = str(IMG2IMG_MUGS_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    print(command)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-img2img"
+    shoe_dict["json_dataset_path"] = str(IMG2IMG_SHOES_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-img2img"
+    tshirt_dict["json_dataset_path"] = str(IMG2IMG_TSHIRTS_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+
+def train_on_2_stage_larger_mask():
+    epochs = 20
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-2-stage-larger-mask"
+    mug_dict["json_dataset_path"] = str(TWO_STAGE_LARGER_MASK_MUGS_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    print(command)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-2-stage-larger-mask"
+    shoe_dict["json_dataset_path"] = str(TWO_STAGE_LARGER_MASK_SHOES_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-2-stage-larger-mask"
+    tshirt_dict["json_dataset_path"] = str(TWO_STAGE_LARGER_MASK_TSHIRTS_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+
+def train_on_ccs_comparison():
+    # 0.5
+    epochs = 20
+
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-ccs-0.5"
+    mug_dict["json_dataset_path"] = str(CCS_COMPARISON_05_MUG_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-ccs-0.5"
+    shoe_dict["json_dataset_path"] = str(CCS_COMPARISON_05_SHOE_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-ccs-0.5"
+    tshirt_dict["json_dataset_path"] = str(CCS_COMPARISON_05_TSHIRT_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 1.0
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-ccs-1.0"
+    mug_dict["json_dataset_path"] = str(CCS_COMPARISON_10_MUG_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-ccs-1.0"
+    shoe_dict["json_dataset_path"] = str(CCS_COMPARISON_10_SHOE_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-ccs-1.0"
+    tshirt_dict["json_dataset_path"] = str(CCS_COMPARISON_10_TSHIRT_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 1.5
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-ccs-1.5"
+    mug_dict["json_dataset_path"] = str(CCS_COMPARISON_15_MUG_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-ccs-1.5"
+    shoe_dict["json_dataset_path"] = str(CCS_COMPARISON_15_SHOE_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-ccs-1.5"
+    tshirt_dict["json_dataset_path"] = str(CCS_COMPARISON_15_TSHIRT_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 2.0
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-ccs-2.0"
+    mug_dict["json_dataset_path"] = str(CCS_COMPARISON_20_MUG_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-ccs-2.0"
+    shoe_dict["json_dataset_path"] = str(CCS_COMPARISON_20_SHOE_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-ccs-2.0"
+    tshirt_dict["json_dataset_path"] = str(CCS_COMPARISON_20_TSHIRT_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 2.5
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-ccs-2.5"
+    mug_dict["json_dataset_path"] = str(CCS_COMPARISON_25_MUG_DATASET)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-ccs-2.5"
+    shoe_dict["json_dataset_path"] = str(CCS_COMPARISON_25_SHOE_DATASET)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-ccs-2.5"
+    tshirt_dict["json_dataset_path"] = str(CCS_COMPARISON_25_TSHIRT_DATASET)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+
 if __name__ == "__main__":
     # train_on_prompts_blip()
     # train_on_prompts_gemini()
@@ -217,4 +402,7 @@ if __name__ == "__main__":
     # train_on_2_stage_baseline()
     # train_on_no_table()
     # train_on_three_stage()
-    train_on_dual_inpainting_diffusion()
+    # train_on_dual_inpainting_diffusion()
+    # train_on_img2img_diffusion()
+    # train_on_2_stage_larger_mask()
+    train_on_ccs_comparison()

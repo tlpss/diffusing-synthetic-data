@@ -97,6 +97,9 @@ if __name__ == "__main__":
         DUAL_INPAINT_MUGS_DATASET,
         DUAL_INPAINT_SHOES_DATASET,
         DUAL_INPAINT_TSHIRTS_DATASET,
+        IMG2IMG_MUGS_DATASET,
+        IMG2IMG_SHOES_DATASET,
+        IMG2IMG_TSHIRTS_DATASET,
         ONE_STAGE_NO_TABLE_MUG_DATASET,
         ONE_STAGE_NO_TABLE_SHOE_DATASET,
         ONE_STAGE_NO_TABLE_TSHIRT_DATASET,
@@ -390,6 +393,32 @@ def train_on_dual_inpainting():
     )
 
 
+def train_on_img2img():
+    # tshirts, shoes, mugs
+    train_and_test_yolo_seg(
+        "shoes-img2img",
+        coco_path_to_yolo_path(IMG2IMG_SHOES_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_SHOES_TEST_DATASET)),
+        "shoe",
+    )
+
+    train_and_test_yolo_seg(
+        "mugs-img2img",
+        coco_path_to_yolo_path(IMG2IMG_MUGS_DATASET),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_VAL_DATASET)),
+        coco_path_to_yolo_path(real_dataset_to_masked(REAL_MUGS_TEST_DATASET)),
+        "mug",
+    )
+    train_and_test_yolo_seg(
+        "tshirts-img2img",
+        coco_path_to_yolo_path(IMG2IMG_TSHIRTS_DATASET),
+        coco_path_to_yolo_path(REAL_TSHIRTS_VAL_DATASET),
+        coco_path_to_yolo_path(REAL_TSHIRTS_TEST_DATASET),
+        "tshirt",
+    )
+
+
 ### TRAIN COMMANDS
 
 # train_on_real_datasets()
@@ -399,4 +428,5 @@ def train_on_dual_inpainting():
 # train_on_no_table_random()
 # train_on_no_table_one_stage_diffusion()
 # train_on_three_stage_diffusion()
-train_on_dual_inpainting()
+# train_on_dual_inpainting()
+train_on_img2img()

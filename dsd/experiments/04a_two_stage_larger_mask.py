@@ -78,45 +78,45 @@ def generate_renders(category):
     if category == "shoes":
         generate_crop_inpaint_diffusion_renders(
             SHOE_SCENES_DIR,
-            DATA_DIR / "diffusion_renders" / "shoes" / "04-two-stage-baseline",
+            DATA_DIR / "diffusion_renders" / "shoes" / "04a-two-stage-larger-mask",
             diffusion_renderers,
             shoe_prompts,
             shoe_background_prompts,
             2,
         )
         generate_coco_datasets(
-            DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "04-two-stage-baseline",
-            DATA_DIR / "diffusion_renders" / "shoes" / "04-two-stage-baseline",
+            DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "04a-two-stage-larger-mask",
+            DATA_DIR / "diffusion_renders" / "shoes" / "04a-two-stage-larger-mask",
             shoe_category,
         )
 
     elif category == "mugs":
         generate_crop_inpaint_diffusion_renders(
             MUG_SCENES_DIR,
-            DATA_DIR / "diffusion_renders" / "mugs" / "04-two-stage-baseline",
+            DATA_DIR / "diffusion_renders" / "mugs" / "04a-two-stage-larger-mask",
             diffusion_renderers,
             mug_prompts,
             mug_background_prompts,
             2,
         )
         generate_coco_datasets(
-            DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "04-two-stage-baseline",
-            DATA_DIR / "diffusion_renders" / "mugs" / "04-two-stage-baseline",
+            DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "04a-two-stage-larger-mask",
+            DATA_DIR / "diffusion_renders" / "mugs" / "04a-two-stage-larger-mask",
             mug_category,
         )
 
     elif category == "tshirts":
         generate_crop_inpaint_diffusion_renders(
             TSHIRT_SCENES_DIR,
-            DATA_DIR / "diffusion_renders" / "tshirts" / "04-two-stage-baseline",
+            DATA_DIR / "diffusion_renders" / "tshirts" / "04a-two-stage-larger-mask",
             diffusion_renderers,
             tshirt_prompts,
             tshirt_background_prompts,
             2,
         )
         generate_coco_datasets(
-            DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "04-two-stage-baseline",
-            DATA_DIR / "diffusion_renders" / "tshirts" / "04-two-stage-baseline",
+            DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "04a-two-stage-larger-mask",
+            DATA_DIR / "diffusion_renders" / "tshirts" / "04a-two-stage-larger-mask",
             tshirt_category,
         )
 

@@ -240,31 +240,194 @@ DUAL_INPAINT_TSHIRTS_DATASET = (
 )
 
 IMG2IMG_MUGS_DATASET = (
+    DATA_DIR / "coco" / "mugs" / "diffusion_renders" / "09-img2img" / "SD2Image2ImageRenderer" / "annotations.json"
+)
+IMG2IMG_SHOES_DATASET = (
+    DATA_DIR / "coco" / "shoes" / "diffusion_renders" / "09-img2img" / "SD2Image2ImageRenderer" / "annotations.json"
+)
+
+IMG2IMG_TSHIRTS_DATASET = (
+    DATA_DIR / "coco" / "tshirts" / "diffusion_renders" / "09-img2img" / "SD2Image2ImageRenderer" / "annotations.json"
+)
+
+TWO_STAGE_LARGER_MASK_MUGS_DATASET = (
     DATA_DIR
     / "coco"
     / "mugs"
     / "diffusion_renders"
-    / "09-img2img"
-    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "04a-two-stage-larger-mask"
+    / "2stage:crop=Cropped:ControlNetTXTFromDepthRenderer_ccs=1.5,margin=10,only_change_mask=True,inp=SD2InpaintingRenderer_strength=1,dilation=3"
     / "annotations.json"
 )
-IMG2IMG_SHOES_DATASET = (
+
+TWO_STAGE_LARGER_MASK_SHOES_DATASET = (
     DATA_DIR
     / "coco"
     / "shoes"
     / "diffusion_renders"
-    / "09-img2img"
-    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "04a-two-stage-larger-mask"
+    / "2stage:crop=Cropped:ControlNetTXTFromDepthRenderer_ccs=1.5,margin=10,only_change_mask=True,inp=SD2InpaintingRenderer_strength=1,dilation=3"
     / "annotations.json"
 )
 
-IMG2IMG_TSHIRTS_DATASET = (
+TWO_STAGE_LARGER_MASK_TSHIRTS_DATASET = (
     DATA_DIR
     / "coco"
     / "tshirts"
     / "diffusion_renders"
-    / "09-img2img"
+    / "04a-two-stage-larger-mask"
+    / "2stage:crop=Cropped:ControlNetTXTFromDepthRenderer_ccs=1.5,margin=10,only_change_mask=True,inp=SD2InpaintingRenderer_strength=1,dilation=3"
+    / "annotations.json"
+)
+
+
+CCS_COMPARISON_05_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=0.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_05_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=0.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_05_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=0.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_10_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.0"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_10_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.0"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_10_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.0"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_15_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
     / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_15_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_15_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_20_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=2.0"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_20_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=2.0"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_20_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=2.0"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_25_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=2.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_25_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=2.5"
+    / "annotations.json"
+)
+
+CCS_COMPARISON_25_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "10-ccs-comparison"
+    / "ControlNetTXTFromDepthRenderer_ccs=2.5"
     / "annotations.json"
 )
 

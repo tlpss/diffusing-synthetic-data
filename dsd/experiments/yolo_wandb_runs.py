@@ -23,9 +23,40 @@ PROMPT_BLIP_MUGS_RUN = "tlips/dsd-paper-yolo/runs/4ns88tfn"
 PROMPT_BLIP_SHOES_RUN = "tlips/dsd-paper-yolo/runs/e9yv0bez"
 PROMPT_BLIP_TSHIRTS_RUN = "tlips/dsd-paper-yolo/runs/6xsh00r9"
 
+## two stage baseline
 TWO_STAGE_BASELINE_MUGS_RUN = "tlips/dsd-paper-yolo/runs/axed16b5"
 TWO_STAGE_BASELINE_SHOES_RUN = "tlips/dsd-paper-yolo/runs/m940xmmm"
 TWO_STAGE_BASELINE_TSHIRTS_RUN = "tlips/dsd-paper-yolo/runs/2oq55vmh"
+
+
+## three stage
+THREE_STAGE_MUGS_RUN = "tlips/dsd-paper-yolo/runs/bffyre1s"
+THREE_STAGE_SHOES_RUN = "tlips/dsd-paper-yolo/runs/a0abpau6"
+THREE_STAGE_TSHIRTS_RUN = "tlips/dsd-paper-yolo/runs/7v8fs3vr"
+
+## no table diffusion
+
+NO_TABLE_ONE_STAGE_MUGS_RUN = "tlips/dsd-paper-yolo/runs/1i46wjyt"
+NO_TABLE_ONE_STAGE_SHOES_RUN = "tlips/dsd-paper-yolo/runs/x0xho0sm"
+NO_TABLE_ONE_STAGE_TSHIRTS_RUN = "tlips/dsd-paper-yolo/runs/sqfz5h7m"
+
+## no table random
+
+RANDOM_TEXTURES_NO_TABLE_MUGS_RUN = "tlips/dsd-paper-yolo/runs/ol02tdj7"
+RANDOM_TEXTURES_NO_TABLE_SHOES_RUN = "tlips/dsd-paper-yolo/runs/8k6gtrw0"
+RANDOM_TEXTURES_NO_TABLE_TSHIRTS_RUN = "tlips/dsd-paper-yolo/runs/wib41yor"
+
+## dual inpaint
+
+DUAL_INPAINTING_MUGS_RUN = "tlips/dsd-paper-yolo/runs/0m0m3ejk"
+DUAL_INPAINTING_TSHIRTS_RUN = "tlips/dsd-paper-yolo/runs/b3mjhb2x"
+DUAL_INPAINTING_SHOES_RUN = "tlips/dsd-paper-yolo/runs/15ongx21"
+
+## img 2 img
+
+IMG2IMG_MUGS_RUN = "tlips/dsd-paper-yolo/runs/f4xtyfda"
+IMG2IMG_SHOES_RUN = "tlips/dsd-paper-yolo/runs/yu6jcr7b"
+IMG2IMG_TSHIRTS_RUN = "tlips/dsd-paper-yolo/runs/ekzuq20g"
 
 
 def get_model_checkpoint_artifact_from_run(run_id):

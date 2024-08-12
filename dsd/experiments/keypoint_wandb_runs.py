@@ -45,6 +45,19 @@ RANDOM_TEXTURES_NO_TABLE_SHOES_RUN = "tlips/dsd-paper/runs/mtifa9qa"
 RANDOM_TEXTURES_NO_TABLE_TSHIRTS_RUN = "tlips/dsd-paper/runs/gxgzakg3"
 
 ## three stage
+THREE_STAGE_MUGS_RUN = "tlips/dsd-paper/runs/tuq0m8dw"
+THREE_STAGE_SHOES_RUN = "tlips/dsd-paper/runs/nlm4a93p"
+THREE_STAGE_TSHIRTS_RUN = "tlips/dsd-paper/runs/jzxdh9cz"
+
+## Dual inpaint
+DUAL_INPAINTING_MUGS_RUN = "tlips/dsd-paper/runs/ssqkbrpn"
+DUAL_INPAINTING_TSHIRTS_RUN = "tlips/dsd-paper/runs/e57cbyn5"
+DUAL_INPAINTING_SHOES_RUN = "tlips/dsd-paper/runs/zkclun8j"
+## img 2 img
+
+IMG2IMG_MUGS_RUN = "tlips/dsd-paper/runs/0c9kpjey"
+IMG2IMG_SHOES_RUN = "tlips/dsd-paper/runs/14zptl31"
+IMG2IMG_TSHIRTS_RUN = "tlips/dsd-paper/runs/4pv4bx0v"
 
 
 def get_model_checkpoint_artifact_from_run(run_id):
