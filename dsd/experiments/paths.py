@@ -53,6 +53,17 @@ RANDOM_TEXTURE_BASELINE_TSHIRT_NO_TABLE_DATASET = (
     DATA_DIR / "coco" / "tshirts" / "random_textures_no_table" / "random_textures" / "annotations.json"
 )
 
+RANDOM_TEXTURE_MUG_LARGE_DATASET = (
+    DATA_DIR / "coco" / "mugs" / "random_textures_large" / "random_textures" / "annotations.json"
+)
+RANDOM_TEXTURE_SHOE_LARGE_DATASET = (
+    DATA_DIR / "coco" / "shoes" / "random_textures_large" / "random_textures" / "annotations.json"
+)
+RANDOM_TEXTURE_TSHIRT_LARGE_DATASET = (
+    DATA_DIR / "coco" / "tshirts" / "random_textures_large" / "random_textures" / "annotations.json"
+)
+
+
 ### DIFFUSION RENDERS
 
 # prompt experiments
@@ -428,6 +439,34 @@ CCS_COMPARISON_25_TSHIRT_DATASET = (
     / "diffusion_renders"
     / "10-ccs-comparison"
     / "ControlNetTXTFromDepthRenderer_ccs=2.5"
+    / "annotations.json"
+)
+
+ONE_STAGE_LARGE_SHOE_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "shoes"
+    / "diffusion_renders"
+    / "11-one-stage-large"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+ONE_STAGE_LARGE_MUG_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "mugs"
+    / "diffusion_renders"
+    / "11-one-stage-large"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
+    / "annotations.json"
+)
+ONE_STAGE_LARGE_TSHIRT_DATASET = (
+    DATA_DIR
+    / "coco"
+    / "tshirts"
+    / "diffusion_renders"
+    / "11-one-stage-large"
+    / "ControlNetTXTFromDepthRenderer_ccs=1.5"
     / "annotations.json"
 )
 

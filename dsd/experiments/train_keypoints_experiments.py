@@ -23,6 +23,9 @@ from paths import (  # noqa
     IMG2IMG_MUGS_DATASET,
     IMG2IMG_SHOES_DATASET,
     IMG2IMG_TSHIRTS_DATASET,
+    ONE_STAGE_LARGE_MUG_DATASET,
+    ONE_STAGE_LARGE_SHOE_DATASET,
+    ONE_STAGE_LARGE_TSHIRT_DATASET,
     ONE_STAGE_NO_TABLE_MUG_DATASET,
     ONE_STAGE_NO_TABLE_SHOE_DATASET,
     ONE_STAGE_NO_TABLE_TSHIRT_DATASET,
@@ -35,6 +38,9 @@ from paths import (  # noqa
     PROMPTS_GEMINI_MUG_DATASET,
     PROMPTS_GEMINI_SHOE_DATASET,
     PROMPTS_GEMINI_TSHIRT_DATASET,
+    RANDOM_TEXTURE_MUG_LARGE_DATASET,
+    RANDOM_TEXTURE_SHOE_LARGE_DATASET,
+    RANDOM_TEXTURE_TSHIRT_LARGE_DATASET,
     THREE_STAGE_MUG_DATASET,
     THREE_STAGE_SHOE_DATASET,
     THREE_STAGE_TSHIRT_DATASET,
@@ -395,6 +401,205 @@ def train_on_ccs_comparison():
     subprocess.run(command, shell=True)
 
 
+def train_on_scale_experiment_one_stage_diffusion():
+    import pathlib
+
+    def dataset_to_split_name(dataset, size):
+        return f"{str(pathlib.Path(dataset).with_suffix(''))}_{size}.json"
+
+    epochs = 20
+
+    # 1K
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-diffusion-1K"
+    print(dataset_to_split_name(ONE_STAGE_LARGE_MUG_DATASET, 1000))
+    mug_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_MUG_DATASET, 1000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-diffusion-1K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_SHOE_DATASET, 1000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-diffusion-1K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_TSHIRT_DATASET, 1000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 2K
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-diffusion-2K"
+    mug_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_MUG_DATASET, 2000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-diffusion-2K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_SHOE_DATASET, 2000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-diffusion-2K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_TSHIRT_DATASET, 2000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 5K
+
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-diffusion-5K"
+    mug_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_MUG_DATASET, 5000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-diffusion-5K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_SHOE_DATASET, 5000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-diffusion-5K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_TSHIRT_DATASET, 5000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 10K
+
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-diffusion-10K"
+    mug_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_MUG_DATASET, 10000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-diffusion-10K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_SHOE_DATASET, 10000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-diffusion-10K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(ONE_STAGE_LARGE_TSHIRT_DATASET, 10000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+
+def train_on_scale_experiment_random_textures():
+    import pathlib
+
+    def dataset_to_split_name(dataset, size):
+        return f"{str(pathlib.Path(dataset).with_suffix(''))}_{size}.json"
+
+    epochs = 20
+
+    # 1K
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-random-textures-1K"
+    mug_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_MUG_LARGE_DATASET, 1000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-random-textures-1K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_SHOE_LARGE_DATASET, 1000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-random-textures-1K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_TSHIRT_LARGE_DATASET, 1000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 2K
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-random-textures-2K"
+    mug_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_MUG_LARGE_DATASET, 2000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-random-textures-2K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_SHOE_LARGE_DATASET, 2000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-random-textures-2K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_TSHIRT_LARGE_DATASET, 2000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 5K
+
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-random-textures-5K"
+    mug_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_MUG_LARGE_DATASET, 5000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-random-textures-5K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_SHOE_LARGE_DATASET, 5000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-random-textures-5K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_TSHIRT_LARGE_DATASET, 5000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+    # 10K
+
+    mug_dict = MUG_DICT.copy()
+    mug_dict["wandb_name"] = "mugs-scale-random-textures-10K"
+    mug_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_MUG_LARGE_DATASET, 10000)
+    mug_dict["max_epochs"] = epochs
+    command = _create_command(mug_dict)
+    subprocess.run(command, shell=True)
+
+    shoe_dict = SHOE_DICT.copy()
+    shoe_dict["wandb_name"] = "shoes-scale-random-textures-10K"
+    shoe_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_SHOE_LARGE_DATASET, 10000)
+    shoe_dict["max_epochs"] = epochs
+    command = _create_command(shoe_dict)
+    subprocess.run(command, shell=True)
+
+    tshirt_dict = TSHIRT_DICT.copy()
+    tshirt_dict["wandb_name"] = "tshirts-scale-random-textures-10K"
+    tshirt_dict["json_dataset_path"] = dataset_to_split_name(RANDOM_TEXTURE_TSHIRT_LARGE_DATASET, 10000)
+    tshirt_dict["max_epochs"] = epochs
+    command = _create_command(tshirt_dict)
+    subprocess.run(command, shell=True)
+
+
 if __name__ == "__main__":
     # train_on_prompts_blip()
     # train_on_prompts_gemini()
@@ -405,4 +610,6 @@ if __name__ == "__main__":
     # train_on_dual_inpainting_diffusion()
     # train_on_img2img_diffusion()
     # train_on_2_stage_larger_mask()
-    train_on_ccs_comparison()
+    # train_on_ccs_comparison()
+    # train_on_scale_experiment_one_stage_diffusion()
+    train_on_scale_experiment_random_textures()

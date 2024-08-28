@@ -60,6 +60,36 @@ IMG2IMG_SHOES_RUN = "tlips/dsd-paper/runs/14zptl31"
 IMG2IMG_TSHIRTS_RUN = "tlips/dsd-paper/runs/4pv4bx0v"
 
 
+### CCS
+
+# 0.5
+CCS_O5_MUGS_RUN = "tlips/dsd-paper/runs/640qrpo8"
+CCS_O5_SHOES_RUN = "tlips/dsd-paper/runs/g5hx4884"
+CCS_O5_TSHIRTS_RUN = "tlips/dsd-paper/runs/muqz1ybl"
+
+# 1.0
+CCS_10_MUGS_RUN = "tlips/dsd-paper/runs/zn71hy8d"
+CCS_10_SHOES_RUN = "tlips/dsd-paper/runs/q6wbhpa5"
+CCS_10_TSHIRTS_RUN = "tlips/dsd-paper/runs/dddtjfq8"
+
+# 1.5
+CCS_15_MUGS_RUN = "tlips/dsd-paper/runs/8bvtpqw9"
+CCS_15_SHOES_RUN = "tlips/dsd-paper/runs/rcei1ugz"
+CCS_15_TSHIRTS_RUN = "tlips/dsd-paper/runs/ivfco0pd"
+
+# 2.0
+
+CCS_20_MUGS_RUN = "tlips/dsd-paper/runs/fx7vd0eg"
+CCS_20_SHOES_RUN = "tlips/dsd-paper/runs/77owwrdr"
+CCS_20_TSHIRTS_RUN = "tlips/dsd-paper/runs/01zkyyu6"
+
+# 2.5
+
+CCS_25_MUGS_RUN = "tlips/dsd-paper/runs/npfclpbf"
+CCS_25_SHOES_RUN = "tlips/dsd-paper/runs/8feoocst"
+CCS_25_TSHIRTS_RUN = "tlips/dsd-paper/runs/pvuxkvfi"
+
+
 def get_model_checkpoint_artifact_from_run(run_id):
     api = wandb.Api()
     run = api.run(run_id)

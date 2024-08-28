@@ -49,7 +49,7 @@ class ImageSaver(Thread):
         self.image_queue.task_done()
 
 
-NOT_RERENDER_EXISTING = True
+NOT_RERENDER_EXISTING = False
 
 
 def generate_diffusion_renders(
