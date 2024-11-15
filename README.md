@@ -108,7 +108,7 @@ Use [this script](dsd/experiments/02_gemini_prompt_diffusion_renders.py) as exam
 ## Data
 
 ### Meshes
-All meshes used for the three categories can be found [here](https://doi.org/10.5281/zenodo.14169207). you can extract this into the `data/` folder.
+All meshes used for the three categories can be found [here](https://doi.org/10.5281/zenodo.14169206). you can extract this into the `data/` folder.
 
 ### Real-world images
 
@@ -116,7 +116,7 @@ The real-world train and test dataset for the T-shirts were taken from [this pap
 
 The datasets for the mugs and shoes were collected and labeled manually.
 
-The datasets are available [here](https://doi.org/10.5281/zenodo.14169207).
+The datasets are available [here](https://doi.org/10.5281/zenodo.14169206).
 ## Trained Models
 All model training runs were logged using [wandb](). The keypoint detection project page can be found [here](https://wandb.ai/tlips/dsd-paper?nw=nwusertlips). The yolo segmentation page can be found [here](https://wandb.ai/tlips/dsd-paper-yolo?nw=nwusertlips).
 
