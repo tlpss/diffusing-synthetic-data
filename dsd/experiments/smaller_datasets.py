@@ -20,6 +20,6 @@ def create_split_datasets(dataset_json_path, split_sizes):
 
 
 if __name__ == "__main__":
-    file_path = "/home/tlips/Documents/diffusing-synthetic-data/data/coco/mugs/random_textures_large/random_textures/random_textures/annotations.json"
-    split_sizes = [1000, 2000, 5000, 10000]
+    file_path = "/home/tlips/Documents/diffusing-synthetic-data/data/coco/mugs/diffusion_renders/11-one-stage-large/ControlNetTXTFromDepthRenderer_ccs=1.5/annotations.json"
+    split_sizes = [250, 500, 1000, 2000, 5000, 10000]
     create_split_datasets(file_path, split_sizes)

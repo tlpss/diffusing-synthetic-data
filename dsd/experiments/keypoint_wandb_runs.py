@@ -90,6 +90,67 @@ CCS_25_SHOES_RUN = "tlips/dsd-paper/runs/8feoocst"
 CCS_25_TSHIRTS_RUN = "tlips/dsd-paper/runs/pvuxkvfi"
 
 
+### scaling experiment
+
+# diffusion
+
+# 250
+SCALE_DIFFUSION_MUGS_250_RUN = "tlips/dsd-paper/runs/h0hmzup3"
+SCALE_DIFFUSION_SHOES_250_RUN = "tlips/dsd-paper/runs/jffglrxv"
+SCALE_DIFFUSION_TSHIRTS_250_RUN = "tlips/dsd-paper/runs/xvf1qo6r"
+
+# 500
+SCALE_DIFFUSION_MUGS_500_RUN = "tlips/dsd-paper/runs/5618nqyi"
+SCALE_DIFFUSION_SHOES_500_RUN = "tlips/dsd-paper/runs/medphond"
+SCALE_DIFFUSION_TSHIRTS_500_RUN = "tlips/dsd-paper/runs/ax57t0i1"
+
+
+# 1K
+SCALE_DIFFUSION_MUGS_1K_RUN = "tlips/dsd-paper/runs/m46sskdr"
+SCALE_DIFFUSION_SHOES_1K_RUN = "tlips/dsd-paper/runs/brisoja1"
+SCALE_DIFFUSION_TSHIRTS_1K_RUN = "tlips/dsd-paper/runs/ous3jnvy"
+
+# 2K
+SCALE_DIFFUSION_MUGS_2K_RUN = "tlips/dsd-paper/runs/63mg6tpk"
+SCALE_DIFFUSION_SHOES_2K_RUN = "tlips/dsd-paper/runs/gm2dqwdr"
+SCALE_DIFFUSION_TSHIRTS_2K_RUN = "tlips/dsd-paper/runs/2v9eo3hv"
+
+# 5K
+SCALE_DIFFUSION_MUGS_5K_RUN = "tlips/dsd-paper/runs/vvtu3pdn"
+SCALE_DIFFUSION_SHOES_5K_RUN = "tlips/dsd-paper/runs/6xiswg4m"
+SCALE_DIFFUSION_TSHIRTS_5K_RUN = "tlips/dsd-paper/runs/tfln0t0c"
+# 10K
+SCALE_DIFFUSION_MUGS_10K_RUN = "tlips/dsd-paper/runs/om0g09hh"
+SCALE_DIFFUSION_SHOES_10K_RUN = "tlips/dsd-paper/runs/vy9slj19"
+SCALE_DIFFUSION_TSHIRTS_10K_RUN = "tlips/dsd-paper/runs/oex4nncp"
+
+# random textures
+
+SCALE_RANDOM_MUGS_250_RUN = "tlips/dsd-paper/runs/b9t8gmey"
+SCALE_RANDOM_SHOES_250_RUN = "tlips/dsd-paper/runs/qmf1kjh0"
+SCALE_RANDOM_TSHIRTS_250_RUN = "tlips/dsd-paper/runs/ufrj337z"
+
+SCALE_RANDOM_MUGS_500_RUN = "tlips/dsd-paper/runs/33k0wgxj"
+SCALE_RANDOM_SHOES_500_RUN = "tlips/dsd-paper/runs/upvnqtyq"
+SCALE_RANDOM_TSHIRTS_500_RUN = "tlips/dsd-paper/runs/wsnr912v"
+
+SCALE_RANDOM_MUGS_1K_RUN = "tlips/dsd-paper/runs/oooq6wxs"
+SCALE_RANDOM_SHOES_1K_RUN = "tlips/dsd-paper/runs/ucz5wb7t"
+SCALE_RANDOM_TSHIRTS_1K_RUN = "tlips/dsd-paper/runs/6v8luhjz"
+
+SCALE_RANDOM_MUGS_2K_RUN = "tlips/dsd-paper/runs/tr0mrawu"
+SCALE_RANDOM_SHOES_2K_RUN = "tlips/dsd-paper/runs/q3t38yci"
+SCALE_RANDOM_TSHIRTS_2K_RUN = "tlips/dsd-paper/runs/3lu22jm4"
+
+SCALE_RANDOM_MUGS_5K_RUN = "tlips/dsd-paper/runs/0rx9u5oq"
+SCALE_RANDOM_SHOES_5K_RUN = "tlips/dsd-paper/runs/rxkkh0i7"
+SCALE_RANDOM_TSHIRTS_5K_RUN = "tlips/dsd-paper/runs/v1t2wbmm"
+
+SCALE_RANDOM_MUGS_10K_RUN = "tlips/dsd-paper/runs/dsdm5y3x"
+SCALE_RANDOM_SHOES_10K_RUN = "tlips/dsd-paper/runs/r9lrdnmf"
+SCALE_RANDOM_TSHIRTS_10K_RUN = "tlips/dsd-paper/runs/745yhgtq"
+
+
 def get_model_checkpoint_artifact_from_run(run_id):
     api = wandb.Api()
     run = api.run(run_id)
