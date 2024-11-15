@@ -11,7 +11,7 @@
   <br/>
   <a href="https://arxiv.org/TOOD">paper </a>
 <div align="center">
-  <img src="docs/img/overview-figure-gh.jpg" width="70%">
+  <img src="docs/img/dsd-overview-gh.jpg" width="80%">
 </div>
 </p>
 
