@@ -27,4 +27,5 @@ dependencies:
     - diffusers[torch]
     - transformers
     - git+https://github.com/facebookresearch/segment-anything.git
+    - keypoint-detection/
 
