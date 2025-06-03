@@ -9,7 +9,7 @@
   <a href="https://airo.ugent.be/">AI and Robotics Lab (AIRO) </a>,
   <a href="https://www.ugent.be/">Ghent University</a>
   <br/>
-  <a href="https://arxiv.org/TOOD">paper </a>
+  <a href="https://arxiv.org/abs/2411.10164">paper </a>
 <div align="center">
   <img src="docs/img/dsd-overview-gh.jpg" width="80%">
 </div>
