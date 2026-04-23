@@ -1,0 +1,4 @@
+experiment,mug,shoe,tshirt
+prompts-blip,0.99,0.94,0.9
+prompts-classname,0.98,0.9,0.77
+prompts-gemini,0.99,0.95,0.93
