@@ -54,11 +54,11 @@ class FIDScoreCalculator:
         # random.shuffle(renderer_to_images_dict["real"])
         ######
 
-        real_images = list(real_path.glob("**/*.jpg"))
+        real_images = list(real_path.glob("**/*.jpg")) + list(real_path.glob("**/*.png"))
 
         fid_score_dict = {}
 
-        N = 5000  # max number of images to use for the calculation
+        N = 500  # max number of images to use for the calculation
         for renderer, images in tqdm(renderer_to_images_dict.items()):
             self._metric.reset()
 
